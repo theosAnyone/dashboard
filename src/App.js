@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  Routes,
+  Route,
+} from 'react-router-dom';
+
+
+import Layout from './components/Layout';
+import SignIn from './features/auth/Login/SignIn';
+
+import SignUp from './features/auth/Login/SignUp';
+import UserInfos from './features/users/UserInfos';
+import DashLayout from './components/DashLayout';
+import PersistLogin from './features/auth/PersistLogin';
+import TeacherInfos from './features/teachers/TeacherInfos';
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+
+    return(
+          <Routes>
+            <Route path="/" element={<Layout/>}>
+
+              <Route index element={<SignIn />} />
+              <Route path="signin" element={<SignIn />} />
+              <Route path="signup" element={<SignUp />} />
+
+              <Route element={<PersistLogin />}>
+              
+                <Route path='users'>
+                  <Route index element={<DashLayout />} />
+                  <Route path=':id' element={<UserInfos />} />
+                </Route>
+
+                <Route path='teacher'>
+                  <Route index element={<DashLayout />} />
+                  <Route path=':id' element={<TeacherInfos />} />
+
+                </Route>
+              </Route>
+              {/* <Route path='teacher' element={<TeacherDashboard/>} /> */}
+            </Route>
+
+          </Routes>
+    )
+  }
 
 export default App;
