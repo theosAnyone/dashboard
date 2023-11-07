@@ -135,7 +135,7 @@ export default function TabPanel({
     const chosen_block_reviewed = (chosen_block?.hasOwnProperty("reviewed") && chosen_block?.reviewed ) || Boolean(chosen_block?.reviews.length) 
     const url = search_review ? search_review.url : null
 
-    console.log("Reviews_init:", reviews_init);
+
     set_reviews(reviews_init)
     set_url(url)
     set_chosen_block_reviewed(chosen_block_reviewed)
