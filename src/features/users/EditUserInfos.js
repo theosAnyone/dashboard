@@ -35,7 +35,7 @@ import { useSelector } from 'react-redux';
 
 
 
-const EditUserInfos = ({user}) => {
+const EditUserInfos = ({ user }) => {
 
   const blocs = user.Journey_Infos.blocs
   const blocs_length = blocs?.length
@@ -63,7 +63,7 @@ const EditUserInfos = ({user}) => {
   const [remaining_tags, set_remaining_tags] = React.useState(0)
   const [file_name, set_file_name] = React.useState({init: "upload mp3"})
   const [files, set_files] = React.useState({init:[]})
-  const [bloc_reviewed, set_bloc_reviewed] = React.useState(false)
+  const [bloc_reviewed, set_bloc_reviewed] = React.useState(blocs_length && (blocs[0].reviewed || blocs[0].reviews?.length))
   const [bloc_name, set_bloc_name] = React.useState(bloc_name_init)
 
   const [show_rating, set_show_rating] = React.useState(true)
@@ -350,7 +350,7 @@ const EditUserInfos = ({user}) => {
           {user.Discord_Infos.displayName}
         </Typography>
         <em>{user.Discord_Infos.discordId}</em>
-        {/* <h1 style={{margin:0}}>{user.Discord_Infos.displayName}</h1> */}
+
       </div>
       { !bloc_reviewed &&
         <Box sx={{ width: '100%', minHeight:174,display:'flex',alignItems:'center',justifyContent:'center', flexDirection:'column' }} ref={containerRef}>
@@ -419,7 +419,7 @@ const EditUserInfos = ({user}) => {
         </Box>
       }
       </div>
-      {!bloc_reviewed && 
+      { !bloc_reviewed && 
             <Box sx={{width:'100%',minHeight:60, display:'flex', alignItems:'center', justifyContent:'flex-start'}}>
             <Box sx={{minWidth:400, height:'100%' }}></Box>
             <Box sx={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>

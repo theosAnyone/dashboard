@@ -13,7 +13,7 @@ export const store = configureStore({
         search: searchReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
-    devTools: false,
+    devTools: process.env.NODE_ENV === 'development',
 })
 
 setupListeners(store.dispatch)

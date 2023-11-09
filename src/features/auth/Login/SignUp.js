@@ -54,6 +54,8 @@ export default function SignUp() {
   const navigate = useNavigate()
 
   const dispatch = useDispatch()
+ 
+  const [secret_code, set_secret_code ] = useState("")
 
   const [first_name, setFirst_name] = useState('')
   const [validFirst_name, setValidFirst_name] = useState(false)
@@ -141,6 +143,11 @@ export default function SignUp() {
       
   }
   
+  if(true) return (
+    <Box display={"flex"} justifyContent={"center"} alignItems={"center"}  >
+      <TextField onChange={(e)=>set_secret_code(e.target.value)} value={secret_code} ></TextField>
+    </Box>
+  )
 
   return (
     <ThemeProvider theme={currentTheme}>
