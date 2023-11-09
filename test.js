@@ -1,8 +1,3 @@
-const obj = {
-  to_sort: ['Journey_Infos','progress'],
-  caca:['prout']
-}
+const pr = process.env.NODE_ENV
 
-const test = {...obj,caca: obj.caca ? [...obj["caca"],'pipi'] : ['pipi']}
-
-console.log("test:",test);
+console.log(pr);
