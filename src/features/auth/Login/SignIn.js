@@ -5,7 +5,6 @@ import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ThemeProvider } from '@emotion/react';
 import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
@@ -24,6 +23,8 @@ import { useDispatch } from 'react-redux';
 import { setCredentials } from '../authSlice';
 import usePersist from '../../../hooks/usePersist';
 import CustomizedSnackbars from '../../../components/CustomizedSnackbar';
+import { setInfos } from '../../teachers/TeacherSlice';
+import { useGetTeacherByIdQuery } from '../../teachers/teachersApiSlice';
 
 function Copyright(props) {
 
@@ -77,10 +78,15 @@ export default function SignIn() {
     }
     try {
 
-      const {accessToken, teacher_id } = await login({email, password}).unwrap()
+      const {accessToken, teacher } = await login({email, password}).unwrap()
 
-
-      dispatch( setCredentials({ accessToken, teacher_id }) )
+      
+      dispatch( setCredentials({ accessToken, teacher_id : teacher._id }) )
+      dispatch( setInfos( {
+        first_name: teacher.first_name,
+        last_name: teacher.last_name,
+        anyone_profile: teacher.anyone_profile,
+      } ))
       set_email_color('success')
       set_password_color('success')
       navigate('/users')
@@ -100,7 +106,6 @@ export default function SignIn() {
     }
   };
 
-  console.log("snackbarsignin:",snackBar_content);
   return (
     <ThemeProvider theme={theme}>
     {snackBar_content}
@@ -163,13 +168,7 @@ export default function SignIn() {
                Sign In
               </Button>
             }
-            <Grid container sx={{display:'flex', justifyContent:'center'}}>
-              <Grid item>
-                <Link href="/signup" variant="body2" color="text.primary">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
+
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />

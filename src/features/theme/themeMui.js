@@ -3,26 +3,28 @@ import { createTheme } from "@mui/material/styles";
 const default_theme = createTheme()
 
 
-export const lightTheme = createTheme({...default_theme,
-  palette:{
-    mode:'light',
+export const lightTheme = createTheme({
+  ...default_theme,
+  palette: {
+    mode: "light",
     typography: {
-        fontFamily: '"Figtree", sans-serif',
+      fontFamily: '"Figtree", sans-serif',
     },
     primary: {
-      main: '#ECEBEF',
+      main: "#ECEBEF",
+    }, 
+    text: {
+      primary: "#000000",
+      secondary: "#cccccc",
     },
-    text:{
-      primary:'#000000',
-      secondary:'#cccccc',
+    borderButton: {
+      main: "#000000",
     },
-    borderButton : {
-      main: '#000000'
+    success: {
+      main: "#4068ce",
     },
-    success:{
-      main : '#4068ce'
-    }
-}})
+  },
+});
 
 
 export const darkTheme = createTheme({...default_theme,

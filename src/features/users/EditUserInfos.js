@@ -1,4 +1,4 @@
-import { Avatar, Box, Stack } from '@mui/material'
+import { Alert, Avatar, Box, CircularProgress, Snackbar, Stack } from '@mui/material'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -6,7 +6,7 @@ import TabPanel from '../../components/TabPanel';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-import { styled } from '@mui/material/styles';
+import { ThemeProvider, styled } from '@mui/material/styles';
 
 import Fade from '@mui/material/Fade';
 
@@ -49,6 +49,7 @@ const EditUserInfos = ({ user }) => {
 
 
   const teacher_id = useSelector((state) => state.auth.teacher_id)
+  const {first_name, last_name, anyone_profile} = useSelector((state) => state.teacher)
 
   const [ addReview, { data:ReviewData, error:ReviewError, isLoading:ReviewIsLoading, isError:ReviewIsError,  isSuccess:ReviewIsSuccess }] = useAddNewReviewMutation();
 
@@ -65,6 +66,8 @@ const EditUserInfos = ({ user }) => {
   const [files, set_files] = React.useState({init:[]})
   const [bloc_reviewed, set_bloc_reviewed] = React.useState(blocs_length && (blocs[0].reviewed || blocs[0].reviews?.length))
   const [bloc_name, set_bloc_name] = React.useState(bloc_name_init)
+  const [step_content, set_step_content] = React.useState(null)
+  const [snackbar, set_snackbar] = React.useState(null)
 
   const [show_rating, set_show_rating] = React.useState(true)
   const [show_demo, set_show_demo] = React.useState(false)
@@ -72,6 +75,7 @@ const EditUserInfos = ({ user }) => {
   const [show_tags, set_show_tags] = React.useState(false)
   const [show_review_button, set_show_review_button] = React.useState(false)
 
+  
   const hide_all = (but_this_one) => {
     const setters = [
       set_show_rating,
@@ -93,15 +97,13 @@ const EditUserInfos = ({ user }) => {
     {label:'Attribute mark',description:'not visible by the student'},
     {label:'Check demos',description:'at least one'},
     {label:'Upload vocal',description:'mp3 file'},
-    {label:'Add some tags',description:"test"} 
+    {label:'Add some tags',description:remaining_tags} 
   ];
 
   const containerRef = React.useRef(null);
 
 
-
   React.useEffect(()=>{
-    console.log("note:",notes);
     if(!notes[bloc_name]){
       setActiveStep(0)
       set_show_rating(true)
@@ -121,7 +123,6 @@ const EditUserInfos = ({ user }) => {
       return
     } 
     if(demos_checked[bloc_name].length){
-      console.log(`demos_checked${bloc_name}:`,demos_checked[bloc_name]);
       setActiveStep(2)
       set_show_file(true)
     }
@@ -156,11 +157,120 @@ const EditUserInfos = ({ user }) => {
     if(tags.new?.length < 3){
       setActiveStep(3)
       hide_all(3)
+      set_remaining_tags(3 - tags.new?.length)
     }
 
   },[notes, demos_checked, files, tags, bloc_name])
 
 
+  React.useEffect( () => {
+
+    if(show_rating){
+      set_step_content(
+        <UserReview handleRatingChange={onRatingChange} ratingValue={notes[bloc_name] ?? notes.init} />
+      )
+    }
+    else if(show_file){
+      set_step_content(
+          <Fade in={true }  timeout={500} >
+            <Button 
+              component="label"
+              variant="contained"
+              startIcon={<CloudUpload />}
+              sx={{fontFamily:'Figtree',minWidth:100 }}
+
+            >
+              {file_name[bloc_name] ?? file_name.init}
+              <VisuallyHiddenInput 
+                type="file" 
+                accept='.mp3'
+                onChange={(e)=>{
+                  handlefile(e)
+                }}
+
+              />
+            </Button>
+
+          </Fade>
+      )
+    }
+    else if(show_review_button && activeStep === steps.length){
+      set_step_content(
+          <Fade in={true }  timeout={500}  >
+          <Fab variant='extended' sx={{fontFamily:'Figtree',minWidth:100 }} color='success' onClick={handleReviewClicked}>
+            <SendIcon sx={{mr:1}}/>
+            Send review
+          </Fab>
+        </Fade>
+      )
+    }
+    else {
+      set_step_content(null)
+    }
+  },[show_rating, show_file, show_review_button, bloc_name])
+
+
+  React.useEffect( () => {
+    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading){
+      set_step_content(
+        <CircularProgress color='success' />
+      )
+    }else return
+  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading])
+
+
+  React.useEffect( () => {
+    if(!updateUserIsSuccess) return
+    if(updateUserIsSuccess){
+      set_snackbar(
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity='success' sx={{ width: '100%' }}>Updated Successfuly</Alert>
+        </Snackbar>
+      );
+    }
+  },[updateUserIsSuccess])
+
+  React.useEffect( () => {
+    if(!ReviewIsError && !BotIsError && !updateUserIsError) return
+    if(ReviewIsError){
+      set_snackbar(
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity='error' sx={{ width: '100%' }}>Review Error</Alert>
+        </Snackbar>
+      )
+    }
+    if(BotIsError){
+      set_snackbar(
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity='error' sx={{ width: '100%' }}>Error sending vocal</Alert>
+        </Snackbar>
+      )
+      console.log("bot error:", BotError);
+    }
+    if(updateUserIsError){
+        set_snackbar(
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity='error' sx={{ width: '100%' }}>Error updating user</Alert>
+        </Snackbar>
+      )
+      console.log("user error:", updateUserError);
+    }
+    set_step_content(
+      <Fade in={true} timeout={500}>
+        <Fab
+          variant="extended"
+          sx={{ fontFamily: "Figtree", minWidth: 100 }}
+          color="success"
+          onClick={handleReviewClicked}
+        >
+          <SendIcon sx={{ mr: 1 }} />
+          Send review
+        </Fab>
+      </Fade>
+    );
+    
+    
+  },[ReviewIsError,BotIsError,updateUserIsError])
 
   const blocNameFromTabPanel = (blocName) => {
 
@@ -176,13 +286,19 @@ const EditUserInfos = ({ user }) => {
     
     const file_name = bloc_name + ".mp3"
     const vocal = files[bloc_name]
+    
     const bot_body_payload = {
       psId,
-      file_name,
       vocal,
-    }
+      fileName: file_name,
+      user_name: user.Discord_Infos.displayName,
+      bloc_name,
+      teacher_first_name: first_name,
+      teacher_last_name: last_name,
+      teacher_anyone_profile: anyone_profile,
+    };
     const url = await postToBot(bot_body_payload).unwrap()
-    console.log("url:",url);
+
     if(!url) return console.log("error posting review on discord")
     
     const review_body_payload = {
@@ -196,7 +312,6 @@ const EditUserInfos = ({ user }) => {
 
     const saved_review = await addReview(review_body_payload).unwrap()
     if(!saved_review) return console.log("error saving review")
-    console.log("saved_review:",saved_review);
     set_tags({new:[],old:[...saved_review.tags, ...tags.old]})
     const update_user_body_payload = {
       userId:user._id,
@@ -206,13 +321,11 @@ const EditUserInfos = ({ user }) => {
     }
     const updated_user = await updateUser(update_user_body_payload).unwrap()
     if(!updated_user) return console.log("error updating user")
-    console.log("updated_user:",updated_user);
 
-    
   }
 
   const onRatingChange = (value) => {
-
+    console.log("rating change bloc name value : ", bloc_name);
     set_notes( {...notes, [bloc_name] : value })
   }
 
@@ -336,144 +449,192 @@ const EditUserInfos = ({ user }) => {
     icon: PropTypes.node,
   };
 
+  const sub_chip = user.Discord_Infos.grade === "Pro" ? (
+      <Chip
+        label="Pro"
+        clickable={true}
+        sx={{
+          width: 100,
+          background: "linear-gradient(112.91deg, #FF022F 0%, #3700D2 94.35%)",
+          color: "white",
+        }}
+      />
+    ) : (
+      <Chip
+        label="Carriere"
+        clickable={true}
+        sx={{
+          width: 100,
+          background: "linear-gradient(112.91deg, #000000 0%, #9a9595 94.35%)",
+          color: "white",
+        }}
+      />
+    );
+
+                
   return (
 
-    <Paper style={{padding:50,minHeight:'100vh'}} elevation={0}> 
-     <Paper elevation={3} style={{borderRadius:20,padding:10,display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
-      <div className='user_infos_header'>
-      <Paper elevation={3} style={{width:200,borderRadius:20}}>
-      <Avatar src={user.Discord_Infos.avatar_url} variant="square" sx={{width:200, height:200,borderRadius:'10px'}}/>
-      </Paper>
-      <div className='user_infos'>
-        <Chip label="Carriere" clickable={true} sx={{width:100, background:'linear-gradient(112.91deg, #000000 0%, #9a9595 94.35%)', color:'white'}}/>
-        <Typography variant="h2"  style={{fontFamily:'Figtree',fontWeight:600,fontSize:50}}>
-          {user.Discord_Infos.displayName}
-        </Typography>
-        <em>{user.Discord_Infos.discordId}</em>
-
-      </div>
-      { !bloc_reviewed &&
-        <Box sx={{ width: '100%', minHeight:174,display:'flex',alignItems:'center',justifyContent:'center', flexDirection:'column' }} ref={containerRef}>
-          <Fade in={!bloc_reviewed} container={containerRef.current} timeout={500} >
-            <Stepper alternativeLabel activeStep={activeStep} sx={{mt:7.5}} connector={<ColorlibConnector />}>
-
-              {steps.map((step,index) =>  {
-                let click_func;
-                switch(index){
-                  case(0):
-                    click_func = () => {
-                      if(activeStep < 0) return
-                      set_show_file(false)
-                      set_show_review_button(false)
-                      set_show_rating(true)
-                    }
-                    break
-                  case(1):
-                    click_func = () => {
-                      if(activeStep < 1) return
-                      set_show_file(false)
-                      set_show_review_button(false)
-                      set_show_rating(false)
-                    }
-                    break
-                  case(2):
-                    click_func = () => {
-                      if(activeStep < 2) return
-                      set_show_rating(false)
-                      set_show_review_button(false)
-                      set_show_file(true)
-                      
-                    }
-                    break
-                  case(3):
-                    click_func = () =>{
-                      if(activeStep < 3) return
-                      set_show_rating(false)
-                      set_show_file(false)
-                      activeStep === steps.length && set_show_review_button(true)
-                    
-                    }
-                    break
-                  default:
-                  break
-                }
-                
-                return (
-                  <Step key={step.label}>
-                    <StepLabel StepIconComponent={ColorlibStepIcon} onClick={click_func} sx={{cursor:'pointer'}}>
-                      {
-                        
-                        <Stack  spacing={1} direction={'column'} >
-                        <Typography  fontFamily={"FigTree"} fontWeight={600}>{step.label}</Typography>
-                        {activeStep === index && <Typography variant='caption' sx={{}}>{step.description}</Typography>}
-                        </Stack> 
-
-                      }
-                    </StepLabel>
-                  </Step>
-                )
-              })}
-
-            </Stepper>
-          </Fade>
-        </Box>
-      }
-      </div>
-      { !bloc_reviewed && 
-            <Box sx={{width:'100%',minHeight:60, display:'flex', alignItems:'center', justifyContent:'flex-start'}}>
-            <Box sx={{minWidth:400, height:'100%' }}></Box>
-            <Box sx={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              { 
-                 show_rating &&
-                  <UserReview handleRatingChange={onRatingChange} ratingValue={notes[bloc_name] ? notes[bloc_name] : notes.init} />
-              }
-              { 
-                show_file &&
-                <Fade in={true }  timeout={500} >
-                  <Button 
-                    component="label"
-                    variant="contained"
-                    startIcon={<CloudUpload />}
-                    sx={{fontFamily:'Figtree',minWidth:100 }}
-
+      <Paper style={{ padding: 50, minHeight: "100vh" }} elevation={0}>
+        {snackbar}
+        <Paper
+          elevation={3}
+          style={{
+            borderRadius: 20,
+            padding: 10,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <div className="user_infos_header">
+            <Paper elevation={3} style={{ width: 200, borderRadius: 20 }}>
+              <Avatar
+                src={user.Discord_Infos.avatar_url}
+                variant="square"
+                sx={{ width: 200, height: 200, borderRadius: "10px" }}
+              />
+            </Paper>
+            <div className="user_infos">
+              {sub_chip}
+              <Typography
+                variant="h2"
+                style={{ fontFamily: "Figtree", fontWeight: 600, fontSize: 50 }}
+              >
+                {user.Discord_Infos.displayName}
+              </Typography>
+              <em>{user.Discord_Infos.discordId}</em>
+            </div>
+            {!bloc_reviewed && (
+              <Box
+                sx={{
+                  width: "100%",
+                  minHeight: 174,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                }}
+                ref={containerRef}
+              >
+                <Fade
+                  in={!bloc_reviewed}
+                  container={containerRef.current}
+                  timeout={500}
+                >
+                  <Stepper
+                    alternativeLabel
+                    activeStep={activeStep}
+                    sx={{ mt: 7.5 }}
+                    connector={<ColorlibConnector />}
                   >
-                    {file_name[bloc_name] ?? file_name.init}
-                    <VisuallyHiddenInput 
-                      type="file" 
-                      accept='.mp3'
-                      onChange={(e)=>{
-                        handlefile(e)
-                      }}
+                    {steps.map((step, index) => {
+                      let click_func;
+                      switch (index) {
+                        case 0:
+                          click_func = () => {
+                            if (activeStep < 0) return;
+                            set_show_file(false);
+                            set_show_review_button(false);
+                            set_show_rating(true);
+                          };
+                          break;
+                        case 1:
+                          click_func = () => {
+                            if (activeStep < 1) return;
+                            set_show_file(false);
+                            set_show_review_button(false);
+                            set_show_rating(false);
+                          };
+                          break;
+                        case 2:
+                          click_func = () => {
+                            if (activeStep < 2) return;
+                            set_show_rating(false);
+                            set_show_review_button(false);
+                            set_show_file(true);
+                          };
+                          break;
+                        case 3:
+                          click_func = () => {
+                            if (activeStep < 3) return;
+                            set_show_rating(false);
+                            set_show_file(false);
+                            activeStep === steps.length &&
+                              set_show_review_button(true);
+                          };
+                          break;
+                        default:
+                          break;
+                      }
 
-                    />
-                  </Button>
-
+                      return (
+                        <Step key={step.label}>
+                          <StepLabel
+                            StepIconComponent={ColorlibStepIcon}
+                            onClick={click_func}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            {
+                              <Stack spacing={1} direction={"column"}>
+                                <Typography
+                                  fontFamily={"FigTree"}
+                                  fontWeight={600}
+                                >
+                                  {step.label}
+                                </Typography>
+                                {activeStep === index && (
+                                  <Typography variant="caption">
+                                    {step.description}
+                                  </Typography>
+                                )}
+                              </Stack>
+                            }
+                          </StepLabel>
+                        </Step>
+                      );
+                    })}
+                  </Stepper>
                 </Fade>
-              }
-              { 
-                (show_review_button && activeStep === steps.length) &&
-                <Fade in={true }  timeout={500}  >
-                  <Fab variant='extended' sx={{fontFamily:'Figtree',minWidth:100 }} color='success' onClick={handleReviewClicked}>
-                    <SendIcon sx={{mr:1}}/>
-                    Send review
-                  </Fab>
-                </Fade>
-              }
+              </Box>
+            )}
+          </div>
+          {!bloc_reviewed && (
+            <Box
+              sx={{
+                width: "100%",
+                minHeight: 60,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+              }}
+            >
+              <Box sx={{ minWidth: 400, height: "100%" }}></Box>
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {step_content}
+              </Box>
             </Box>
-          </Box>
-      }
-      <TabPanel 
-        row_progress={user.Journey_Infos.progress}  
-        user={user} 
-        handleReviewClicked={handleReviewClicked} 
-        transmit_demo_to_EditUserInfos={demoFromTabPanel} 
-        transmit_tags_to_EditUserInfos={handleTagsFormTabPanel}
-        pass_bloc_name_to_parent={blocNameFromTabPanel}
-        pass_bloc_reviewed_to_parent={bloc_reviewed_passed}
-      />
+          )}
+          <TabPanel
+            row_progress={user.Journey_Infos.progress}
+            user={user}
+            handleReviewClicked={handleReviewClicked}
+            transmit_demo_to_EditUserInfos={demoFromTabPanel}
+            transmit_tags_to_EditUserInfos={handleTagsFormTabPanel}
+            pass_bloc_name_to_parent={blocNameFromTabPanel}
+            pass_bloc_reviewed_to_parent={bloc_reviewed_passed}
+          />
+        </Paper>
       </Paper>
-    </Paper>
-  )
+
+  );
 }
 
 export default EditUserInfos

@@ -47,9 +47,7 @@ const AvatarChip = () => {
     },[isSuccess, navigate])
 
     useEffect(()=>{
-      console.log("1");
       if(!teacher || !teacherIsSucces)return
-      console.log("2");
       set_teacher_data(teacher)
     },[teacherIsSucces,teacher])
 
@@ -155,7 +153,7 @@ const AvatarChip = () => {
           </Button>
         </MenuItem>
 
-        <MenuItem onClick={handleClose} sx={{mt:2}}>
+        <MenuItem onClick={handleClose} sx={{display:'flex',alignItems:'center',justifyContent:'center',width:175,borderRadius:8,height:40, mt:2}}>
         <Button 
             variant='outlined'
             sx={{borderRadius:4, minWidth:175, textTransform:'none'}} 

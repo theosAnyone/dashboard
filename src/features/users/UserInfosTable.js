@@ -27,7 +27,6 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
     const currentTheme = theme.palette.mode
     
     const bloc_is_reviewed = bloc.hasOwnProperty("reviewed") ? (bloc.reviewed || Boolean(bloc.reviews.length)) : false
-    console.log("bloc_is_reviewed:",bloc_is_reviewed);
 
 
     const handleSortClick = (id) => {
@@ -36,10 +35,20 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
     }
 
     const handleCheckBoxes = (ex_id, e_is_checked) => {
+
+      console.log("e_is_checked:",e_is_checked);
+
       if(e_is_checked){
-        set_demos_checked_state(ex_id)
+        set_demos_checked_state([...demos_checked_state, ex_id])
+        handleCheckedDemo([...demos_checked_state, ex_id]);
+      } else if (!e_is_checked){
+        const demos_checked_filtered = demos_checked_state.filter(ex => ex !== ex_id)
+        set_demos_checked_state(demos_checked_filtered)
+        handleCheckedDemo(demos_checked_filtered)
       }
-      handleCheckedDemo(ex_id,e_is_checked)
+      
+
+      console.log("set_demos_checked_state:",demos_checked_state);
     }
 
     const columns = [
@@ -85,6 +94,7 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
             const date = moment(exercice.date)
             const formattedDate = date.format('MMM D YYYY HH:mm');
             const demo_checked = demos_checked.includes(exercice._id)
+            const ex_is_correction =  exercice.name.includes("correction")
             return (
               <TableRow
                 key={index}
@@ -103,7 +113,16 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
                   </div>
                 </TableCell>
                 <TableCell >
-                  <Checkbox disabled={bloc_is_reviewed} checked={demo_checked} onChange={(e)=>handleCheckBoxes(exercice._id,e.target.checked)} color='success'/>
+                  { !ex_is_correction &&
+                    <Checkbox 
+                    disabled={bloc_is_reviewed} 
+                    checked={demo_checked} 
+                    onChange={(e)=>handleCheckBoxes(exercice._id,e.target.checked)} 
+                    color='success'
+                    sx={{color:'#4068ce'}}
+                    />
+                  }
+
                 </TableCell>
 
 

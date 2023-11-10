@@ -8,7 +8,6 @@ const UserTableFilterButton = ({id,label,minWidth,marginLeft,onchange,menu_items
     const [value,set_value] = useState(title)
 
     const handleValueCheck = (e) => {
-        console.log("VALUE:",e.target.value);
         set_value(e.target.value)
         if(e.target.value === ''){
             onchange && onchange('none')

@@ -22,7 +22,7 @@ function App() {
 
               <Route index element={<SignIn />} />
               <Route path="signin" element={<SignIn />} />
-              <Route path="signup" element={<SignUp />} />
+              <Route path="ANCADMINsignup" element={<SignUp />} />
 
               <Route element={<PersistLogin />}>
               

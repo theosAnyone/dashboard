@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import checkPasswordStandards from '../../../utils/functions/PasswordStandards'
 import { useState, useEffect} from 'react';
 import checkEmailStandards from '../../../utils/functions/EmailStandards';
-import { useAddNewTeacherMutation } from '../../../features/teachers/teachersApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { darkTheme, lightTheme } from '../../../features/theme/themeMui';
 import { ThemeProvider } from '@emotion/react';
@@ -55,7 +54,7 @@ export default function SignUp() {
 
   const dispatch = useDispatch()
  
-  const [secret_code, set_secret_code ] = useState("")
+  const [secret_key, set_secret_key ] = useState("")
 
   const [first_name, setFirst_name] = useState('')
   const [validFirst_name, setValidFirst_name] = useState(false)
@@ -107,10 +106,10 @@ export default function SignUp() {
   const onLast_nameChanged = e => setLast_name(e.target.value)
   const onPasswordChanged = e => setPassword(e.target.value)
   const onEmailChanged = e => set_email(e.target.value)
-
+  const onSecretKeyChange = e => set_secret_key(e.target.value)
   
 
-  const canSave = [validFirst_name, validLast_name, validPassword, valid_email].every(Boolean) && !isLoading
+  const canSave = [validFirst_name, validLast_name, validPassword, valid_email, secret_key].every(Boolean) && !isLoading
 
   const onSignup = async (e) => {
       e.preventDefault()
@@ -118,10 +117,10 @@ export default function SignUp() {
           const first_name_threated = first_name.charAt(0).toUpperCase() + first_name.slice(1).toLowerCase()
           const last_name_threated = last_name.charAt(0).toUpperCase() + last_name.slice(1).toLowerCase()
         try {
-          const {accessToken, teacher_id} = await signUp({ first_name:first_name_threated, last_name:last_name_threated, email, password }).unwrap()
-          console.log("accessToken:",accessToken);
+          const {accessToken, teacher_id} = await signUp({ first_name:first_name_threated, last_name:last_name_threated, email, password, secret_key }).unwrap()
           dispatch(setCredentials({ accessToken, teacher_id
           }))
+          
           navigate('/users')
         } catch (error) {
 
@@ -143,26 +142,22 @@ export default function SignUp() {
       
   }
   
-  if(true) return (
-    <Box display={"flex"} justifyContent={"center"} alignItems={"center"}  >
-      <TextField onChange={(e)=>set_secret_code(e.target.value)} value={secret_code} ></TextField>
-    </Box>
-  )
+
 
   return (
     <ThemeProvider theme={currentTheme}>
       {snackBar_content}
-      <Container component="main" maxWidth="xs" sx={{height:'100vh'}}>
+      <Container component="main" maxWidth="xs" sx={{ height: "100vh" }}>
         <CssBaseline />
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
@@ -181,7 +176,7 @@ export default function SignUp() {
                   autoFocus
                   focused={!validFirst_name}
                   onChange={onFirst_nameChanged}
-                  color={validFirst_name ? 'success' : 'error'}
+                  color={validFirst_name ? "success" : "error"}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -193,7 +188,7 @@ export default function SignUp() {
                   name="lastName"
                   autoComplete="family-name"
                   onChange={onLast_nameChanged}
-                  color={validLast_name ? 'success' : 'error'}
+                  color={validLast_name ? "success" : "error"}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -205,7 +200,7 @@ export default function SignUp() {
                   name="email"
                   autoComplete="email"
                   onChange={onEmailChanged}
-                  color={valid_email ? 'success' : 'error'}
+                  color={valid_email ? "success" : "error"}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -218,12 +213,31 @@ export default function SignUp() {
                   id="password"
                   autoComplete="new-password"
                   onChange={onPasswordChanged}
-                  color={validPassword ? 'success' : 'error'}
+                  color={validPassword ? "success" : "error"}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="secretKey"
+                  label="Secret Key"
+                  type="password"
+                  id="secretKey"
+                  autoComplete="new-password"
+                  onChange={onSecretKeyChange}
                 />
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="success" checked={cgu_checked}  onChange={()=>set_cgu_checked(!cgu_checked)}/>} 
+                  control={
+                    <Checkbox
+                      value="allowExtraEmails"
+                      color="success"
+                      checked={cgu_checked}
+                      onChange={() => set_cgu_checked(!cgu_checked)}
+                    />
+                  }
                   label="J'ai lu et j'accepte les conditions generale d'utilisations"
                 />
               </Grid>
@@ -235,13 +249,13 @@ export default function SignUp() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
               disabled={!canSave}
-              color='success'
+              color="success"
             >
               Inscription
             </Button>
 
             <Grid container justifyContent="flex-end">
-              <Grid item >
+              <Grid item>
                 <Link href="/signin" variant="body2" color={"text.primary"}>
                   J'ai deja un compte
                 </Link>
@@ -251,6 +265,6 @@ export default function SignUp() {
         </Box>
         <Copyright sx={{ mt: 5 }} />
       </Container>
-      </ThemeProvider>
+    </ThemeProvider>
   );
 }

@@ -134,12 +134,13 @@ export default function TabPanel({
     const search_review = reviews_init?.find((review) => chosen_block.reviews.includes(review._id))
     const chosen_block_reviewed = (chosen_block?.hasOwnProperty("reviewed") && chosen_block?.reviewed ) || Boolean(chosen_block?.reviews.length) 
     const url = search_review ? search_review.url : null
-
+    const demos_checked = search_review?.demos || []
 
     set_reviews(reviews_init)
     set_url(url)
     set_chosen_block_reviewed(chosen_block_reviewed)
     pass_bloc_reviewed_to_parent(chosen_block_reviewed)
+    set_demo_checked([...demo_checked, ...demos_checked])
 
   },[UserReviewsAreSuccess, chosen_block])
 
@@ -197,7 +198,7 @@ export default function TabPanel({
   const handleSelectChange = (value) => {
 
     const selected_bloc = blocs.filter(bloc => bloc.blocName === value.key)
-
+    console.log("selected_bloc:", selected_bloc);
     if(!selected_bloc?.length){
       return
     }
@@ -209,19 +210,9 @@ export default function TabPanel({
 
   }
 
-  const handleCheckedDemo = (exercice_id, checked) => {
-    if(!exercice_id) return console.log("error no exname")
-
-    if(checked){
-      set_demo_checked([...demo_checked,exercice_id])
-      transmit_demo_to_EditUserInfos([...demo_checked,exercice_id])
-    } else {
-      const demo_filtered = demo_checked.filter(exId => exId !== exercice_id)
-      console.log("demo_filtered:",demo_filtered);
-      set_demo_checked(demo_filtered)
-      transmit_demo_to_EditUserInfos(demo_filtered)
-    }
-    
+  const handleCheckedDemo = (demos_checked_transmitted) => {
+    set_demo_checked(demos_checked_transmitted)
+    transmit_demo_to_EditUserInfos(demos_checked_transmitted)    
   }
 
   
