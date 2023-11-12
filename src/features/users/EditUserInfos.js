@@ -317,6 +317,7 @@ const EditUserInfos = ({ user }) => {
       userId:user._id,
       blocName:bloc_name,
       review_id:saved_review._id,
+      tags:[...tags.new,...tags.old],
       id:user._id,
     }
     const updated_user = await updateUser(update_user_body_payload).unwrap()

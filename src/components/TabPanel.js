@@ -149,7 +149,7 @@ export default function TabPanel({
   useEffect(()=>{
 
     if(!reviews) return
-    const old_tags = reviews.flatMap(review => review.tags)
+    const old_tags = user.Student_Perks.tags
     set_tags({new:[], old : old_tags })
     
 
