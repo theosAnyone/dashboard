@@ -56,8 +56,8 @@ export default function UserTags({transmitTags,tagsTransmitted}) {
 
   const handleDelete = (chipToDelete) => () => {
 
-    const old_tags_filtered = tags.old.filter((tag) => tag !== chipToDelete)
-    const new_tags_filtered =  tags.new.filter(tag => tag !== chipToDelete)
+    const old_tags_filtered = tags.old.filter( tag => tag !== chipToDelete)
+    const new_tags_filtered =  tags.new.filter( tag => tag !== chipToDelete)
     setTags({new: new_tags_filtered, old: old_tags_filtered})
     transmitTags({new: new_tags_filtered, old: old_tags_filtered})
 
@@ -117,6 +117,7 @@ export default function UserTags({transmitTags,tagsTransmitted}) {
                             onDelete={handleDelete(data)}
                             sx={{fontSize:20}}
                             size='medium'
+                            
                             />
                         </ListItem>
                     );

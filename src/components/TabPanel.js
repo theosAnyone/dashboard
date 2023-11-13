@@ -23,7 +23,9 @@ import  MenuItem from '@mui/material/MenuItem';
 import  Chip  from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 
-
+import useAuth from '../hooks/useAuth';
+import Button  from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
 
 
 
@@ -80,6 +82,7 @@ export default function TabPanel({
   transmit_tags_to_EditUserInfos,
   pass_bloc_reviewed_to_parent,
   pass_bloc_name_to_parent,
+  handleChangeMenuItemClick,
 }) {
 
   const [ addReview, { data:ReviewData, error:ReviewError, isLoading:ReviewIsLoading, isError:ReviewIsError,  isSuccess:ReviewIsSuccess }] = useAddNewReviewMutation();
@@ -102,6 +105,9 @@ export default function TabPanel({
   const [snackBar_content, set_snackBar_content] = useState(null)
   const [chosen_block_reviewed, set_chosen_block_reviewed] = useState(false)
 
+  const [change_menu_anchor,set_change_menu_anchor] = useState(null)
+  const [change_menu_open,set_change_menu_open] = useState(false)
+
   const select_value_init = blocs?.length ? 
     setExChoose(0,"bases")
     :
@@ -112,6 +118,8 @@ export default function TabPanel({
 
   const progress_percent = (row_progress /19) * 100
   const progress_bar_color = ((row_progress /19) * 100) !== 100 ? 'secondary' :'success'
+
+  const {email, status, isManager } = useAuth()
 
   useEffect(()=>{
 
@@ -149,7 +157,7 @@ export default function TabPanel({
   useEffect(()=>{
 
     if(!reviews) return
-    const old_tags = reviews.flatMap(review => review.tags)
+    const old_tags = user.Student_Perks?.tags || []
     set_tags({new:[], old : old_tags })
     
 
@@ -215,7 +223,14 @@ export default function TabPanel({
     transmit_demo_to_EditUserInfos(demos_checked_transmitted)    
   }
 
-  
+  const handleChangeClick = (event) => {
+    set_change_menu_anchor(event.currentTarget)
+    set_change_menu_open(true)
+  }
+
+  const handleChangeMenuClose = () => {
+    set_change_menu_open(false)
+  }
 
 
   const seeReview = () => {
@@ -267,6 +282,22 @@ export default function TabPanel({
     )
   }) : null
 
+  const starting_chip = (user_is_starting && <p>Starting...</p>) || null
+
+  const reviewed_chip =   (chosen_block_reviewed && <Chip label={"Reviewed"} clickable={Boolean(url)} onClick={seeReview} sx={{width:100, marginLeft:5}}/>) || null 
+
+  const review_loading_chip = ((ReviewIsLoading || BotIsLoading) && <CircularProgress sx={{marginLeft:5}} color='primary'/>) || null
+
+  const manager_change_status = 
+    isManager && 
+    <>
+    <Button color='success' onClick={handleChangeClick}>Change</Button>
+    <Menu open={change_menu_open} anchorEl={change_menu_anchor} onClose={handleChangeMenuClose}>
+      {!chosen_block_reviewed && <MenuItem id='Reviewed' onClick={()=>handleChangeMenuItemClick("Reviewed")}>Reviewed</MenuItem>}
+      {chosen_block_reviewed && <MenuItem id='Not Reviewed' onClick={()=>handleChangeMenuItemClick("Not Reviewed")}>Not Reviewed</MenuItem>}
+
+    </Menu>
+    </>
 
 
   return (
@@ -306,14 +337,14 @@ export default function TabPanel({
               key={"bloc-choose"}
             />
 
-          { user_is_starting ? <p>Starting...</p> : chosen_block_reviewed ? <Chip label={"Reviewed"} clickable={Boolean(url)} onClick={seeReview} sx={{width:100, marginLeft:5}}/> 
-            :
-            <>
-              {(ReviewIsLoading || BotIsLoading) && <CircularProgress sx={{marginLeft:5}} color='primary'/>}
-            </>
-          }
+              {starting_chip}
+              {reviewed_chip}
+              {review_loading_chip}
+              {manager_change_status}    
           </Box>
+
         <div style={{margin:20}}></div>
+
         <Box sx={{display:'flex'}}>
           {chosen_block && <UserInfosTable bloc={chosen_block} handleCheckedDemo={handleCheckedDemo} demos_checked={demo_checked}/>}
         </Box>

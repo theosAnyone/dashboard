@@ -6,8 +6,23 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import Modal from '@mui/material/Modal';
+import  Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
+import exercice1 from '../../img/exercice1.png'
+import exercice2 from '../../img/exercice2.png'
+import exercice3 from '../../img/exercice3.png'
+import exercice4 from '../../img/exercice4.png'
+import exercice5 from '../../img/exercice5.png'
+import exercice6 from '../../img/exercice6.png'
+import exercice7 from '../../img/exercice7.png'
+import exercice8 from '../../img/exercice8.png'
+import exercice9 from '../../img/exercice9.png'
+import exercice10 from '../../img/exercice10.png'
+import exercice11 from '../../img/exercice11.png'
+import exercice12 from '../../img/exercice12.png'
+import exercice13 from '../../img/exercice13.png'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
@@ -16,13 +31,31 @@ import Checkbox from '@mui/material/Checkbox';
 
 const moment = require('moment')
 
+const exName_img = {
+  'exercice1':exercice1,
+  'exercice2':exercice2,
+  'exercice3':exercice3,
+  'exercice4':exercice4,
+  'exercice5':exercice5,
+  'exercice6':exercice6,
+  'exercice7':exercice7,
+  'exercice8':exercice8,
+  'exercice9':exercice9,
+  'exercice10':exercice10,
+  'exercice11':exercice11,
+  'exercice12':exercice12,
+  'exercice13':exercice13,
 
+
+}
 
 export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked}) {
 
     const [selected_column,set_selected_column] = useState('')
     const [button_up,set_button_up] = useState(false)
     const [demos_checked_state, set_demos_checked_state ] = useState(demos_checked || [])
+    const [img_src, set_img_src] = useState("../../img/background.jpg")
+    const [modal_open, set_modal_open] = useState(false)
     const theme = useTheme()
     const currentTheme = theme.palette.mode
     
@@ -49,6 +82,11 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
       
 
       console.log("set_demos_checked_state:",demos_checked_state);
+    }
+
+    const handleExClick = (exName) => {
+      set_img_src(exName_img[exName])
+      set_modal_open(true)
     }
 
     const columns = [
@@ -82,6 +120,9 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
     })
     return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Modal open={modal_open} onClose={()=>set_modal_open(false)} >
+        <img src={img_src} alt='caca' height={'60%'} width={'30%'} style={{position:'absolute', top:'20%', right:'40%'}}/>
+      </Modal>
     <TableContainer sx={{maxHeight:380}}>
       <Table sx={{ minWidth: 650}} stickyHeader aria-label="simple table">
         <TableHead>
@@ -100,12 +141,12 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
                 key={index}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 
-                <TableCell component="th" scope="row">
-                  {exercice.name.charAt(0).toUpperCase() + exercice.name.slice(1)}
+                <TableCell component="th" scope="row"  onClick={()=>handleExClick(exercice.numberName)}>
+                  <span style={{cursor:'pointer'}}>{exercice.name.charAt(0).toUpperCase() + exercice.name.slice(1)}</span>
                 </TableCell>
                 <TableCell >
                   <div style={{display:'flex',flexDirection:'column'}}>
-                  {exercice.link === 'no link' ? <span>no link</span>:<Link href={exercice.link} underline='always' fontWeight={600} style={{color:'blue'}} target="_blank" rel="noopener noreferrer">
+                  {exercice.link === 'no link' ? <span>no link</span> : <Link href={exercice.link} underline='always' fontWeight={600} style={{color:'blue'}} target="_blank" rel="noopener noreferrer">
                     {"See file"}
                   </Link>}
                   

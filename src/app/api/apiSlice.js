@@ -2,16 +2,15 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 import { setCredentials } from '../../features/auth/authSlice'
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "https://dashboard-api-m5pk.onrender.com",
-  credentials: "include",
-  prepareHeaders: (headers, { getState }) => {
-    const token = getState().auth.token;
-    console.log("token:", token);
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
+    baseUrl: 'http://localhost:3500',
+    credentials: 'include',
+    prepareHeaders: (headers, { getState }) => {
+        const token = getState().auth.token
+        if (token) {
+            headers.set("authorization", `Bearer ${token}`)
+        }
+        return headers
     }
-    return headers;
-  },
 });
 
 const baseQueryWithReauth = async (args, api, extraOptions) => {
