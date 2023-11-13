@@ -89,6 +89,10 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
       set_modal_open(true)
     }
 
+    const handleCorrClick = (exLink) => {
+      window.open(exLink, '_blank', 'noopener,noreferrer');
+    }
+
     const columns = [
         {name:"exercice"},
         {name:"submission"},
@@ -121,7 +125,7 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
     return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Modal open={modal_open} onClose={()=>set_modal_open(false)} >
-        <img src={img_src} alt='caca' height={'60%'} width={'30%'} style={{position:'absolute', top:'20%', right:'40%'}}/>
+        <img src={img_src} alt='consignes' height={'60%'} width={'30%'} style={{position:'absolute', top:'20%', right:'40%'}}/>
       </Modal>
     <TableContainer sx={{maxHeight:380}}>
       <Table sx={{ minWidth: 650}} stickyHeader aria-label="simple table">
@@ -141,7 +145,7 @@ export default function UserInfosTable({bloc, handleCheckedDemo, demos_checked})
                 key={index}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 
-                <TableCell component="th" scope="row"  onClick={()=>handleExClick(exercice.numberName)}>
+                <TableCell component="th" scope="row"  onClick={()=> { ex_is_correction ? handleCorrClick(exercice.link) : handleExClick(exercice.numberName) }}>
                   <span style={{cursor:'pointer'}}>{exercice.name.charAt(0).toUpperCase() + exercice.name.slice(1)}</span>
                 </TableCell>
                 <TableCell >

@@ -6,7 +6,7 @@ import TabPanel from '../../components/TabPanel';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-import { ThemeProvider, styled } from '@mui/material/styles';
+import {  styled } from '@mui/material/styles';
 
 import Fade from '@mui/material/Fade';
 
