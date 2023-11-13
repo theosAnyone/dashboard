@@ -75,6 +75,7 @@ const EditUserInfos = ({ user }) => {
   const [show_tags, set_show_tags] = React.useState(false)
   const [show_review_button, set_show_review_button] = React.useState(false)
 
+  console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading);
   
   const hide_all = (but_this_one) => {
     const setters = [
@@ -211,6 +212,7 @@ const EditUserInfos = ({ user }) => {
 
 
   React.useEffect( () => {
+
     if(ReviewIsLoading || updateUserIsLoading || BotIsLoading){
       set_step_content(
         <CircularProgress color='success' />
@@ -227,6 +229,7 @@ const EditUserInfos = ({ user }) => {
           <Alert severity='success' sx={{ width: '100%' }}>Updated Successfuly</Alert>
         </Snackbar>
       );
+      set_step_content()
     }
   },[updateUserIsSuccess])
 
@@ -324,6 +327,39 @@ const EditUserInfos = ({ user }) => {
     if(!updated_user) return console.log("error updating user")
 
   }
+
+ const  handleChangeMenuItemClick = async (status) => {
+
+
+    switch(status){
+      case "Reviewed":
+        const update_user_body_reviewed_payload = {
+          userId:user._id,
+          blocName:bloc_name,
+          review_id:"655168a5c2fe267ac89dab53",
+          tags:[...tags.new,...tags.old],
+          id:user._id,
+        }
+        const updated_user_reviewed = await updateUser(update_user_body_reviewed_payload).unwrap()
+        if(!updated_user_reviewed) return console.log("error updating user")
+          break
+
+      case "Not Reviewed":
+        const update_user_body_not_reviewed_payload = {
+          userId:user._id,
+          blocName:bloc_name,
+          review_id:"655168a5c2fe267ac89dab53",
+          set_not_reviewed:true,
+          tags:[...tags.new,...tags.old],
+          id:user._id,
+        }
+        const updated_user_not_reviewed = await updateUser(update_user_body_not_reviewed_payload).unwrap()
+        if(!updated_user_not_reviewed) return console.log("error updating user")
+          break
+      default:
+        break
+    }
+ }
 
   const onRatingChange = (value) => {
     console.log("rating change bloc name value : ", bloc_name);
@@ -631,6 +667,7 @@ const EditUserInfos = ({ user }) => {
             transmit_tags_to_EditUserInfos={handleTagsFormTabPanel}
             pass_bloc_name_to_parent={blocNameFromTabPanel}
             pass_bloc_reviewed_to_parent={bloc_reviewed_passed}
+            handleChangeMenuItemClick={handleChangeMenuItemClick}
           />
         </Paper>
       </Paper>

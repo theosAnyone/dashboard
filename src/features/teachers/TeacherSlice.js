@@ -2,10 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const teacherSlice = createSlice({
   name: "teacher",
-  initialState: { id:null, first_name:null, last_name:null, anyone_profile:null },
+  initialState: { id:"", first_name:"", last_name:"", anyone_profile:"" },
   reducers: {
     setInfos: (state, action) => {
         const payload = action.payload
+        console.log(action.payload);
         for(const key in payload){
             if(key in state){
                 state[key] = payload[key]

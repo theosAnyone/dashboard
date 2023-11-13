@@ -16,6 +16,7 @@
     "@mui/styled-engine-sc": "^6.0.0-alpha.3",
     "@mui/styles": "^5.14.15",
     "@reduxjs/toolkit": "^1.9.6",
+    "jwt-decode": "^4.0.0",
     "moment": "^2.29.4",
     "node-sass": "^7.0.3",
     "react": "^18.0.2",

@@ -117,6 +117,7 @@ export default function UserTags({transmitTags,tagsTransmitted}) {
                             onDelete={handleDelete(data)}
                             sx={{fontSize:20}}
                             size='medium'
+                            
                             />
                         </ListItem>
                     );
