@@ -46,7 +46,7 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
   } = useGetUsersQuery('userList',{
     pollingInterval: 60000,
   })
-
+  
   const navigate = useNavigate()
 
 
@@ -61,12 +61,34 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
 
   const [button_up, set_button_up] = React.useState(false)
 
+  const [page_content, set_page_content] = React.useState(
+    <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
+      <p>Error</p>
+    </Box>)
+
   const color_icon_up = currentTheme === 'light' ?  (!button_up  ? '#000000' : '#9a9595') :  (!button_up  ? '#9a9595' : '#ffffff')
   const color_icon_down = currentTheme === 'light' ? (button_up  ? '#000000' : '#9a9595') : (button_up  ? '#9a9595' : '#ffffff')
 
+  console.log("isFetching:",isFetching, "isLoading:",isLoading, "isSuccess:",isSuccess, isError);
+  console.log("data:",getUserlistdata);
+
 
   React.useEffect(()=>{
-    if(isSuccess && getUserlistdata && !isFetching){
+    if(isSuccess && !getUserlistdata){
+      set_page_content(
+        <div className="table-container">
+          <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
+            <TableVirtuoso
+              components={VirtuosoTableComponents}
+              fixedHeaderContent={fixedHeaderContent}
+              itemContent={rowContent}
+              data={rows_loading_map}
+            />
+          </Paper>
+        </div>
+      )
+    }
+    if(isSuccess && getUserlistdata){
 
       const users = getUserlistdata.ids.map((id) => getUserlistdata.entities[id])
       set_users(users)
@@ -82,6 +104,62 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
     set_users_transformed(transformed_user_data)
 
   },[users])
+
+  React.useEffect(()=>{
+    if((isLoading || isFetching ) && !isSuccess){
+      set_page_content(
+        <div className="table-container">
+          <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
+            <TableVirtuoso
+              components={VirtuosoTableComponents}
+              fixedHeaderContent={fixedHeaderContent}
+              itemContent={rowContent}
+              data={rows_loading_map}
+            />
+          </Paper>
+        </div>
+      )
+    }
+  },[isLoading, isFetching ,rows])
+
+  React.useEffect(()=>{
+    if(rows.length){
+      set_page_content(
+        <div className="table-container">
+          <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
+            <TableVirtuoso
+              data={rows_map}
+              components={VirtuosoTableComponents}
+              fixedHeaderContent={fixedHeaderContent}
+              itemContent={rowContent}
+            />
+          </Paper>
+        </div>)
+    }
+    if(!rows.length && !isLoading && !isError && !isFetching){
+      set_page_content( 
+        <div style={{width:'100%',height:'70%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <NoResultSvg handleClearFiltersClick={handleClearFiltersHere}/>
+        </div>)
+    }
+  },[rows])
+
+  React.useEffect(()=>{
+    if(!isError) return
+    if(error.status === "FETCH_ERROR"){
+        currentTheme === "light" ? 
+          set_page_content(
+        <div>
+          <CustomizedSnackbars message={"Error sending vocal"} severity={"error"}  />
+          <FetchFailedSvg/>
+        </div>) : 
+        set_page_content(
+        <div>
+          <CustomizedSnackbars message={"Error sending vocal"} severity={"error"}  />
+          <FetchFailedSvgDark/>
+        </div>)
+    }
+  },[isError])
 
   React.useEffect(()=>{
     if(isFetching)return
@@ -268,59 +346,6 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
   );
   }
 
-  let page_content = 
-  <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
-    <p>Error</p>
-  </Box>
-
-  if(isError) {
-      if(error.status === "FETCH_ERROR"){
-         currentTheme === "light" ? 
-           page_content = 
-          <div>
-            <CustomizedSnackbars message={"Error sending vocal"} severity={"error"}  />
-            <FetchFailedSvg/>
-          </div> : 
-          page_content = 
-          <div>
-            <CustomizedSnackbars message={"Error sending vocal"} severity={"error"}  />
-            <FetchFailedSvgDark/>
-          </div>
-      }
-      
-  }
-  if (isLoading || isFetching || !rows){
-    page_content = 
-    <div className="table-container">
-    <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
-      <TableVirtuoso
-        components={VirtuosoTableComponents}
-        fixedHeaderContent={fixedHeaderContent}
-        itemContent={rowContent}
-        data={rows_loading_map}
-      />
-    </Paper>
-    </div>
-  } 
-  if(rows.length){
-    page_content = 
-      <div className="table-container">
-        <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
-          <TableVirtuoso
-            data={rows_map}
-            components={VirtuosoTableComponents}
-            fixedHeaderContent={fixedHeaderContent}
-            itemContent={rowContent}
-          />
-        </Paper>
-      </div>
-  }
-  if(!rows.length){
-    page_content = 
-      <div style={{width:'100%',height:'70%',display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <NoResultSvg handleClearFiltersClick={handleClearFiltersHere}/>
-      </div>
-  }
 
   return page_content;
   
