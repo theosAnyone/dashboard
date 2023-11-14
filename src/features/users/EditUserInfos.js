@@ -6,7 +6,7 @@ import TabPanel from '../../components/TabPanel';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-import {  styled } from '@mui/material/styles';
+import {  makeStyles, styled } from '@mui/styles';
 
 import Fade from '@mui/material/Fade';
 
@@ -507,8 +507,21 @@ const EditUserInfos = ({ user }) => {
         }}
       />
     );
+    
+  const Typo = styled('h2') (({theme}) => ({
 
-                
+      fontFamily: "Figtree",
+      fontWeight: 600,
+      fontSize: '100px', // Taille par défaut
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '100px', // Taille plus petite pour les écrans jusqu'à 'small'
+      },
+      [theme.breakpoints.up('md')]: {
+        fontSize: '100px', // Taille moyenne pour les écrans 'medium' et plus
+      },
+      // Ajoutez d'autres breakpoints si nécessaire
+  }));
+        
   return (
 
       <Paper style={{ padding: 50, minHeight: "100vh" }} elevation={0}>
@@ -533,12 +546,10 @@ const EditUserInfos = ({ user }) => {
             </Paper>
             <div className="user_infos">
               {sub_chip}
-              <Typography
-                variant="h2"
-                style={{ fontFamily: "Figtree", fontWeight: 600, fontSize: 50 }}
+              <Typo
               >
                 {user.Discord_Infos.displayName}
-              </Typography>
+              </Typo>
               <em>{user.Discord_Infos.discordId}</em>
             </div>
             {!bloc_reviewed && (
