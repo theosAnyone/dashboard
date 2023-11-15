@@ -6,7 +6,7 @@ import TabPanel from '../../components/TabPanel';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-import {  makeStyles, styled } from '@mui/styles';
+import {  styled } from '@mui/material/styles';
 
 import Fade from '@mui/material/Fade';
 
@@ -35,20 +35,22 @@ import { useSelector } from 'react-redux';
 
 
 
+
 const EditUserInfos = ({ user }) => {
 
   const blocs = user.Journey_Infos.blocs
   const blocs_length = blocs?.length
   const blocs_completed = blocs_length && blocs.filter(bloc => bloc.completed)
   const blocs_reviewed = blocs_length && blocs.filter(bloc => bloc.reviewed || bloc.reviews?.length )
-  const blocs_not_reviewed = blocs_length && blocs.filter(bloc => !bloc.reviewed || !bloc.reviews?.length )
   const bloc_name_init = blocs_length && blocs[0].blocName
+  const chosen_block_init = blocs_length && blocs[0]
   const psId = user.Discord_Infos.privateSpaceId;
 
 
 
 
   const teacher_id = useSelector((state) => state.auth.teacher_id)
+
   const {first_name, last_name, anyone_profile} = useSelector((state) => state.teacher)
 
   const [ addReview, { data:ReviewData, error:ReviewError, isLoading:ReviewIsLoading, isError:ReviewIsError,  isSuccess:ReviewIsSuccess }] = useAddNewReviewMutation();
@@ -64,8 +66,11 @@ const EditUserInfos = ({ user }) => {
   const [remaining_tags, set_remaining_tags] = React.useState(0)
   const [file_name, set_file_name] = React.useState({init: "upload mp3"})
   const [files, set_files] = React.useState({init:[]})
+
+  const [chosen_block,set_chosen_block] = React.useState(chosen_block_init)
   const [bloc_reviewed, set_bloc_reviewed] = React.useState(blocs_length && (blocs[0].reviewed || blocs[0].reviews?.length))
   const [bloc_name, set_bloc_name] = React.useState(bloc_name_init)
+
   const [step_content, set_step_content] = React.useState(null)
   const [snackbar, set_snackbar] = React.useState(null)
 
@@ -75,7 +80,10 @@ const EditUserInfos = ({ user }) => {
   const [show_tags, set_show_tags] = React.useState(false)
   const [show_review_button, set_show_review_button] = React.useState(false)
 
-  console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading);
+
+
+
+  // console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading);
   
   const hide_all = (but_this_one) => {
     const setters = [
@@ -102,6 +110,7 @@ const EditUserInfos = ({ user }) => {
   ];
 
   const containerRef = React.useRef(null);
+    console.log("note:",notes[bloc_name]);
 
 
   React.useEffect(()=>{
@@ -161,11 +170,12 @@ const EditUserInfos = ({ user }) => {
       set_remaining_tags(3 - tags.new?.length)
     }
 
-  },[notes, demos_checked, files, tags, bloc_name])
+  },[notes, demos_checked, files, tags, bloc_name, blocs])
 
 
   React.useEffect( () => {
-
+    if(!chosen_block) return
+    if(!chosen_block.completed) return
     if(show_rating){
       set_step_content(
         <UserReview handleRatingChange={onRatingChange} ratingValue={notes[bloc_name] ?? notes.init} />
@@ -275,9 +285,9 @@ const EditUserInfos = ({ user }) => {
     
   },[ReviewIsError,BotIsError,updateUserIsError])
 
-  const blocNameFromTabPanel = (blocName) => {
-
-    set_bloc_name(blocName)
+  const blocNameFromTabPanel = (bloc) => {
+    set_bloc_name(bloc.blocName)
+    set_chosen_block(bloc)
   }
 
   const bloc_reviewed_passed = (bool) => {
@@ -510,18 +520,26 @@ const EditUserInfos = ({ user }) => {
     
   const Typo = styled('h2') (({theme}) => ({
 
-      fontFamily: "Figtree",
-      fontWeight: 600,
-      fontSize: '100px', // Taille par défaut
-      [theme.breakpoints.down('sm')]: {
-        fontSize: '100px', // Taille plus petite pour les écrans jusqu'à 'small'
-      },
-      [theme.breakpoints.up('md')]: {
-        fontSize: '100px', // Taille moyenne pour les écrans 'medium' et plus
-      },
+    fontFamily: "Figtree",
+    margin:0,
+    fontWeight: 600,
+    fontSize: '40px', // Taille par défaut
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '20px', // Taille plus petite pour les écrans jusqu'à 'small'
+    },
+    [theme.breakpoints.up('sm')]: {
+      fontSize: '40px', // Taille plus petite pour les écrans jusqu'à 'small'
+    },
+    [theme.breakpoints.up('md')]: {
+      fontSize: '40px', // Taille moyenne pour les écrans 'medium' et plus
+    },
+    [theme.breakpoints.down('xs')]:{
+      fontSize: '10px'
+    }
       // Ajoutez d'autres breakpoints si nécessaire
   }));
         
+
   return (
 
       <Paper style={{ padding: 50, minHeight: "100vh" }} elevation={0}>
@@ -531,17 +549,50 @@ const EditUserInfos = ({ user }) => {
           style={{
             borderRadius: 20,
             padding: 10,
+            minWidth:410,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
           }}
         >
           <div className="user_infos_header">
-            <Paper elevation={3} style={{ width: 200, borderRadius: 20 }}>
+            <Paper elevation={3} sx={{
+                    borderRadius:'20px',
+                    height: {
+                      xs: '100px', // Taille sur les très petits écrans
+                      sm: '150px', // Taille sur les petits écrans
+                      md: '200px', // Taille sur les écrans moyens
+                      lg: '200px', // Taille sur les grands écrans
+                      xl: '250px'  // Taille sur les très grands écrans
+                    },
+                    width: {
+                      xs: '100px', // Taille sur les très petits écrans
+                      sm: '150px', // Taille sur les petits écrans
+                      md: '200px', // Taille sur les écrans moyens
+                      lg: '200px', // Taille sur les grands écrans
+                      xl: '250px'  // Taille sur les très grands écrans
+                    }
+            }}>
               <Avatar
                 src={user.Discord_Infos.avatar_url}
                 variant="square"
-                sx={{ width: 200, height: 200, borderRadius: "10px" }}
+                  sx={{  
+                    borderRadius:'20px',
+                    height: {
+                      xs: '100px', // Taille sur les très petits écrans
+                      sm: '150px', // Taille sur les petits écrans
+                      md: '200px', // Taille sur les écrans moyens
+                      lg: '200px', // Taille sur les grands écrans
+                      xl: '250px'  // Taille sur les très grands écrans
+                    },
+                    width: {
+                      xs: '100px', // Taille sur les très petits écrans
+                      sm: '150px', // Taille sur les petits écrans
+                      md: '200px', // Taille sur les écrans moyens
+                      lg: '200px', // Taille sur les grands écrans
+                      xl: '250px'  // Taille sur les très grands écrans
+                    }
+                  }}
               />
             </Paper>
             <div className="user_infos">
@@ -552,7 +603,7 @@ const EditUserInfos = ({ user }) => {
               </Typo>
               <em>{user.Discord_Infos.discordId}</em>
             </div>
-            {!bloc_reviewed && (
+            {!bloc_reviewed && blocs_completed && (
               <Box
                 sx={{
                   width: "100%",
@@ -646,7 +697,7 @@ const EditUserInfos = ({ user }) => {
               </Box>
             )}
           </div>
-          {!bloc_reviewed && (
+          {!bloc_reviewed &&  blocs_completed && (
             <Box
               sx={{
                 width: "100%",

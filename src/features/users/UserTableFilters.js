@@ -5,11 +5,29 @@ import UserTableFIlterSearchBar from "./UserTableFIlterSearchBar";
 import { Avatar } from "@mui/material";
 import FaceIcon from '@mui/icons-material/Face';
 import { useSelector } from "react-redux";
+import { useDashboardContext } from "../../hooks/FiltersContext";
 
-const UserTableFilters = ({handleFilterFunction,rows_length}) => {
+const UserTableFilters = () => {
 
     const theme = useSelector((state) => state.theme)
+    const {rowsLength, handleFilterFunctions, filter_functions} = useDashboardContext()
+    let sub_title;
+    let status_title
+    let bloc_title
+    if(filter_functions?.length){
+        console.log("filter_func_lenght");
+        const sub_func =  filter_functions.filter(obj => obj.type === 'subscriptions')
 
+        const status_func =  filter_functions.filter(obj => obj.type === 'status')
+        console.log("status_func:",status_func);
+        const bloc_func =  filter_functions.filter(obj => obj.type === 'blocs')
+         sub_title = sub_func?.length ? sub_func[0].id : 'Any subscriptions'
+         status_title = status_func?.length ? status_func[0].id : 'Any status'
+         console.log("status_title:",status_title);
+         bloc_title = bloc_func?.length ? bloc_func[0].id : 'Any blocs'
+        
+    }
+    
     const [subscriptions_select,set_subscriptions_select] = useState('')
     const [status_select,set_status_select] = useState('')
     const [bloc_select,set_bloc_select] = useState('')
@@ -19,23 +37,31 @@ const UserTableFilters = ({handleFilterFunction,rows_length}) => {
     const onChangeStatus = (value) => value !== status_select && set_status_select(value) 
     const onChangeBloc = (value) => value !== bloc_select && set_bloc_select(value) 
 
+    // useEffect(()=>{
+    //     if(!filter_functions?.length) return
+    //     if(filter_functions.some(obj => obj.type === "subscriptions")){
+    //         filter_functions.filter(obj => obj.type === "subscriptions")
+    //     }
+    // },[filter_functions])
+
     useEffect(()=>{
         if(subscriptions_select){
             const filterFunction = (value) => {
                 return (e) => e.subscription === value;
             };
     
-            handleFilterFunction({type:'subscriptions',id:subscriptions_select,func:filterFunction(subscriptions_select)})
+            handleFilterFunctions({type:'subscriptions',id:subscriptions_select,func:filterFunction(subscriptions_select)})
 
         }
     },[subscriptions_select])
     
     useEffect(()=>{
         if(status_select){
+
             const filterFunction = (value) => {
                 return (e) => e.status === value;
             };
-            handleFilterFunction({type:'status',id:status_select,func:filterFunction(status_select)})
+            handleFilterFunctions({type:'status',id:status_select,func:filterFunction(status_select)})
 
         }
     },[status_select])
@@ -45,7 +71,7 @@ const UserTableFilters = ({handleFilterFunction,rows_length}) => {
             const filterFunction = (value) => {
                 return (e) => e.progress === value;
             };
-            handleFilterFunction({type:'bloc',id:bloc_select,func:filterFunction(bloc_select)})
+            handleFilterFunctions({type:'bloc',id:bloc_select,func:filterFunction(bloc_select)})
 
         }
     },[bloc_select])
@@ -90,7 +116,7 @@ const UserTableFilters = ({handleFilterFunction,rows_length}) => {
                 marginLeft={0}
                 onchange={onChangeSubscription}
                 menu_items={subscriptionsMenuItems}
-                title={"Any subscriptions"}
+                title={sub_title}
             />
             <UserTableFilterButton
                 Label_id={"status-label"}
@@ -100,7 +126,7 @@ const UserTableFilters = ({handleFilterFunction,rows_length}) => {
                 marginLeft={5}
                 onchange={onChangeStatus}
                 menu_items={statusMenuItems}
-                title={"Any status"}
+                title={status_title}
             />
             <UserTableFilterButton
                 Label_id={"blocs-label"}
@@ -110,7 +136,7 @@ const UserTableFilters = ({handleFilterFunction,rows_length}) => {
                 marginLeft={5}
                 onchange={onChangeBloc}
                 menu_items={blocMenuItems}
-                title={"Any blocs"}
+                title={bloc_title}
             />
 
             <div className="student_number_and_avatar">
@@ -118,7 +144,7 @@ const UserTableFilters = ({handleFilterFunction,rows_length}) => {
                     <FaceIcon  sx={{color:bg_avatar_color}}/>
                 </Avatar>
                 <span>
-                    {rows_length}  
+                    {rowsLength}  
                 </span>
 
             </div>

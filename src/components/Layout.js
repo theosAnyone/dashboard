@@ -8,9 +8,9 @@ const Layout = () => {
    const theme = theme_select === 'light' ? lightTheme : darkTheme
     return (
         <ThemeProvider theme={theme}>
-        <Paper>
-            <Outlet />
-        </Paper>
+                <Paper>
+                    <Outlet />
+                </Paper>
         </ThemeProvider>
     )
 }
