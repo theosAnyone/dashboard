@@ -1,6 +1,8 @@
 import { useSelector } from "react-redux";
 import {  useGetUsersQuery } from "./usersApiSlice"
 import { sortUsers } from "../../utils/functions/SortUsers";
+import { selectAllUsers } from "./usersApiSlice";
+import { selectUsersResult } from "./usersApiSlice";
 import transform_users_data from "../../utils/functions/TransformUserData";
 
 import * as React from 'react';
@@ -28,12 +30,13 @@ import FetchFailedSvg from "../../img/FetchFailedSvg";
 import FetchFailedSvgDark from "../../img/FetchFailedSvgDark";
 import CustomizedSnackbars from "../../components/CustomizedSnackbar";
 import NoResultSvg from "../../img/NoResultSvg";
+import { useDashboardContext } from "../../hooks/FiltersContext";
 
 
 
 
 
-export default function UserList({filter_functions,passRowsLength, handleClearFilters}) {
+export default function UserList() {
 
 
   const {
@@ -42,12 +45,16 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
       isSuccess,
       isError,
       isFetching,
-      error
+      error,
   } = useGetUsersQuery('userList',{
     pollingInterval: 60000,
+
   })
   
   const navigate = useNavigate()
+
+
+  const {filter_functions_funcs, setRowsLength, handleClearFilters} = useDashboardContext()
 
 
   const search = useSelector( (state) => state.search)
@@ -63,7 +70,7 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
 
   const [page_content, set_page_content] = React.useState(
     <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
-      <p>Error</p>
+      <p>Loading</p>
     </Box>)
 
   const color_icon_up = currentTheme === 'light' ?  (!button_up  ? '#000000' : '#9a9595') :  (!button_up  ? '#9a9595' : '#ffffff')
@@ -73,8 +80,10 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
   console.log("data:",getUserlistdata);
 
 
+
   React.useEffect(()=>{
     if(isSuccess && !getUserlistdata){
+      console.log("isSucces no data");
       set_page_content(
         <div className="table-container">
           <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
@@ -88,9 +97,10 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
         </div>
       )
     }
-    if(isSuccess && getUserlistdata){
-
+    if(isSuccess || getUserlistdata?.ids){
+      console.log("isSucces and data");
       const users = getUserlistdata.ids.map((id) => getUserlistdata.entities[id])
+      //! Si isSucces et data alors on transforme la data normalisee et on set_users avec
       set_users(users)
 
     }
@@ -105,8 +115,50 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
 
   },[users])
 
+ React.useEffect(()=>{
+    if(!getUserlistdata?.ids) return
+
+    const users_init = getUserlistdata.ids.map(id=>getUserlistdata.entities[id])
+
+    if(!search?.length && users.length !== users_init.length){
+      set_users(users_init)
+      return;
+    }
+
+    const perfect_match = users_init.filter(user =>  user.Discord_Infos.displayName.toLowerCase() === search.join('').toLowerCase())
+
+    const users_filtered_by_search =  users_init.filter(user => search.every(char => user.Discord_Infos.displayName.toLowerCase().includes(char.toLowerCase())))
+
+    const users_filtered_and_perfect_match = Array.from(new Set([...perfect_match,...users_filtered_by_search]))
+    
+    set_users(users_filtered_and_perfect_match)
+
+  },[search,isFetching, getUserlistdata])
+
   React.useEffect(()=>{
-    if((isLoading || isFetching ) && !isSuccess){
+    console.log("filter_functions_funcs || users_transformed has changed");
+    if(filter_functions_funcs?.length && users_transformed){
+      console.log("filter_functions_funcs:",filter_functions_funcs)
+      let users_filtered_by_filters = users_transformed;
+      let users_filtered_by_filter;
+      
+      for(const filter of filter_functions_funcs){
+
+        users_filtered_by_filter =  users_filtered_by_filters.filter(filter);
+        users_filtered_by_filters = users_filtered_by_filter;  // mise à jour après chaque itération
+
+      }
+      console.log("filtered found , users_filtered_by_filter :", users_filtered_by_filter);
+      set_rows(users_filtered_by_filter)
+    } else {
+      console.log("no filters found");
+      set_rows(users_transformed)
+    }
+  },[filter_functions_funcs,users_transformed])
+
+  React.useEffect(()=>{
+    if(isLoading ){
+      console.log("isLoading");
       set_page_content(
         <div className="table-container">
           <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
@@ -121,28 +173,6 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
       )
     }
   },[isLoading, isFetching ,rows])
-
-  React.useEffect(()=>{
-    if(rows.length){
-      set_page_content(
-        <div className="table-container">
-          <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
-            <TableVirtuoso
-              data={rows_map}
-              components={VirtuosoTableComponents}
-              fixedHeaderContent={fixedHeaderContent}
-              itemContent={rowContent}
-            />
-          </Paper>
-        </div>)
-    }
-    if(!rows.length && !isLoading && !isError && !isFetching){
-      set_page_content( 
-        <div style={{width:'100%',height:'70%',display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <NoResultSvg handleClearFiltersClick={handleClearFiltersHere}/>
-        </div>)
-    }
-  },[rows])
 
   React.useEffect(()=>{
     if(!isError) return
@@ -161,41 +191,32 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
     }
   },[isError])
 
-  React.useEffect(()=>{
-    if(isFetching)return
-    
-    const users_init = getUserlistdata.ids.map(id=>getUserlistdata.entities[id])
-    if(!search?.length){
-      set_users(users_init)
-      return;
-    }
+ 
 
-    const perfect_match = users_init.filter(user =>  user.Discord_Infos.displayName.toLowerCase() === search.join('').toLowerCase())
 
-    const users_filtered_by_search =  users_init.filter(user => search.every(char => user.Discord_Infos.displayName.toLowerCase().includes(char.toLowerCase())))
 
-    const users_filtered_and_perfect_match = Array.from(new Set([...perfect_match,...users_filtered_by_search]))
-    
-    set_users(users_filtered_and_perfect_match)
 
-  },[search,isFetching])
-
-  React.useEffect(()=>{
-
-    if(filter_functions?.length && users_transformed){
-      let users_filtered_by_filters = users_transformed;
-      let users_filtered_by_filter;
-      
-      for(const filter of filter_functions){
-        users_filtered_by_filter =  users_filtered_by_filters.filter(filter);
-        users_filtered_by_filters = users_filtered_by_filter;  // mise à jour après chaque itération
-
+    React.useEffect(()=>{
+      if(rows.length){
+        set_page_content(
+          <div className="table-container">
+            <Paper style={{ height: 640, width: '100%',marginTop:20 }}>
+              <TableVirtuoso
+                data={rows_map}
+                components={VirtuosoTableComponents}
+                fixedHeaderContent={fixedHeaderContent}
+                itemContent={rowContent}
+              />
+            </Paper>
+          </div>)
       }
-      set_rows(users_filtered_by_filter)
-    } else {
-      set_rows(users_transformed)
-    }
-  },[filter_functions,users_transformed])
+      if(!rows.length && (!isFetching && !isLoading && !isSuccess)){
+        set_page_content( 
+          <div style={{width:'100%',height:'70%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <NoResultSvg handleClearFiltersClick={handleClearFiltersHere}/>
+          </div>)
+      }
+  },[rows])
 
 
   const handleRowClick = (user_id) => {
@@ -266,7 +287,7 @@ export default function UserList({filter_functions,passRowsLength, handleClearFi
   }
 
   const rows_map = set_rows_func(rows)
-  passRowsLength(rows?.length ? rows.length : 0)
+  setRowsLength(rows?.length ? rows.length : 0)
 
   const rows_loading_map = set_rows_loading_func()
 

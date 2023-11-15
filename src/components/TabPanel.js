@@ -137,10 +137,10 @@ export default function TabPanel({
 
   useEffect(()=>{
     if(!UserReviewsAreSuccess) return
-
+    
     const reviews_init = UserReviews.ids.map(id=>UserReviews.entities[id])
     const search_review = reviews_init?.find((review) => chosen_block.reviews.includes(review._id))
-    const chosen_block_reviewed = (chosen_block?.hasOwnProperty("reviewed") && chosen_block?.reviewed ) || Boolean(chosen_block?.reviews.length) 
+    const chosen_block_reviewed = (chosen_block?.hasOwnProperty("reviewed") && chosen_block?.reviewed ) || Boolean(chosen_block?.reviews?.length) 
     const url = search_review ? search_review.url : null
     const demos_checked = search_review?.demos || []
 
@@ -206,13 +206,12 @@ export default function TabPanel({
   const handleSelectChange = (value) => {
 
     const selected_bloc = blocs.filter(bloc => bloc.blocName === value.key)
-    console.log("selected_bloc:", selected_bloc);
     if(!selected_bloc?.length){
       return
     }
 
     set_chosen_block(selected_bloc[0])
-    pass_bloc_name_to_parent(selected_bloc[0].blocName)
+    pass_bloc_name_to_parent(selected_bloc[0])
     set_select_value(value.key)
 
 
@@ -316,7 +315,7 @@ export default function TabPanel({
 
         <div className="table-row-progress-and-value" style={{display:'flex',alignItems:'center',justifyContent:'flex-end',width:'100%',marginRight:150,marginTop:20,marginBottom:20}}> 
           <LinearProgress variant="determinate"  value={progress_percent} color={progress_bar_color} sx={{width:'100%',borderRadius:'5px',height:'6px'}}/> 
-          <span style={{fontFamily:'Figtree',marginLeft:'3px',marginRight:150}}>{row_progress}</span>
+          <span style={{fontFamily:'Figtree',marginLeft:'3px'}}>{row_progress}</span>
         </div>
 
         <Divider/>

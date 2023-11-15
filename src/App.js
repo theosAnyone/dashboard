@@ -12,11 +12,12 @@ import UserInfos from './features/users/UserInfos';
 import DashLayout from './components/DashLayout';
 import PersistLogin from './features/auth/PersistLogin';
 import TeacherInfos from './features/teachers/TeacherInfos';
-
+import { DashboardProvider } from './hooks/FiltersContext';
 
 function App() {
 
     return(
+        <DashboardProvider>
           <Routes>
             <Route path="/" element={<Layout/>}>
 
@@ -41,6 +42,7 @@ function App() {
             </Route>
 
           </Routes>
+          </DashboardProvider>
     )
   }
 
