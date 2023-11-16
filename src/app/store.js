@@ -14,7 +14,8 @@ import teacherReducer from '../features/teachers/TeacherSlice'
 const persistConfig = {
     key: 'root',
     storage,
-    whiteList:['teacher']
+    whitelist:['teacher'],
+    blacklist:[apiSlice.reducerPath]
 }
 
 const rootReducer = combineReducers({

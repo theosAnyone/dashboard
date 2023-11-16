@@ -30,24 +30,16 @@ import Button  from '@mui/material/Button';
 import UserReview from './UserReview'
 import { useAddNewBotMutation } from '../discordBot.js/DiscordBotApiSlice';
 import { useAddNewReviewMutation } from '../reviews/ReviewApiSlice';
-import { useUpdateUserMutation } from './usersApiSlice';
+import {  useGetUsersQuery, useUpdateUserMutation } from './usersApiSlice';
 import { useSelector } from 'react-redux';
 
 
 
 
-const EditUserInfos = ({ user }) => {
-
-  const blocs = user.Journey_Infos.blocs
-  const blocs_length = blocs?.length
-  const blocs_completed = blocs_length && blocs.filter(bloc => bloc.completed)
-  const blocs_reviewed = blocs_length && blocs.filter(bloc => bloc.reviewed || bloc.reviews?.length )
-  const bloc_name_init = blocs_length && blocs[0].blocName
-  const chosen_block_init = blocs_length && blocs[0]
-  const psId = user.Discord_Infos.privateSpaceId;
+const EditUserInfos = ({ user_init }) => {
 
 
-
+  const {isLoading: userQueryIsLoading, isSuccess: userQueryIsSuccess} = useGetUsersQuery()
 
   const teacher_id = useSelector((state) => state.auth.teacher_id)
 
@@ -59,6 +51,9 @@ const EditUserInfos = ({ user }) => {
 
   const [ postToBot,{data:BotData, error:BotError, isLoading:BotIsLoading, isError:BotIsError, isSuccess:BotIsSuccess, status:BotStatus}] = useAddNewBotMutation()
 
+  
+  const [user, set_user] = React.useState(user_init)
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [notes, set_notes] = React.useState({init:null})
   const [demos_checked, set_demos_checked] = React.useState({init:[]})
@@ -66,6 +61,14 @@ const EditUserInfos = ({ user }) => {
   const [remaining_tags, set_remaining_tags] = React.useState(0)
   const [file_name, set_file_name] = React.useState({init: "upload mp3"})
   const [files, set_files] = React.useState({init:[]})
+
+  const blocs = user.Journey_Infos.blocs
+  const blocs_length = blocs?.length
+  const blocs_completed = blocs_length && blocs.filter(bloc => bloc.completed)
+  const blocs_reviewed = blocs_length && blocs.filter(bloc => bloc.reviewed || bloc.reviews?.length )
+  const bloc_name_init = blocs_length && blocs[0].blocName
+  const chosen_block_init = blocs_length && blocs[0]
+  const psId = user.Discord_Infos.privateSpaceId;
 
   const [chosen_block,set_chosen_block] = React.useState(chosen_block_init)
   const [bloc_reviewed, set_bloc_reviewed] = React.useState(blocs_length && (blocs[0].reviewed || blocs[0].reviews?.length))
@@ -83,8 +86,9 @@ const EditUserInfos = ({ user }) => {
 
 
 
-  // console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading);
-  
+  console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading, "\nuserQueryIsLoading:", userQueryIsLoading);
+  console.log("ReviewIsSucces:",ReviewIsSuccess, '\nupdateUserIsSuccess', updateUserIsSuccess, "\nBotIsSuccess",BotIsSuccess,"\nuserQueryIsSuccess",userQueryIsSuccess)
+
   const hide_all = (but_this_one) => {
     const setters = [
       set_show_rating,
@@ -112,6 +116,8 @@ const EditUserInfos = ({ user }) => {
   const containerRef = React.useRef(null);
     console.log("note:",notes[bloc_name]);
 
+
+  
 
   React.useEffect(()=>{
     if(!notes[bloc_name]){
@@ -223,12 +229,14 @@ const EditUserInfos = ({ user }) => {
 
   React.useEffect( () => {
 
-    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading){
+    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading || userQueryIsLoading){
       set_step_content(
         <CircularProgress color='success' />
       )
-    }else return
-  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading])
+    }else if(userQueryIsSuccess){
+      set_step_content(<UserReview handleRatingChange={onRatingChange} ratingValue={notes[bloc_name] ?? notes.init} />)
+    } return
+  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading, userQueryIsLoading, userQueryIsSuccess])
 
 
   React.useEffect( () => {
@@ -239,7 +247,7 @@ const EditUserInfos = ({ user }) => {
           <Alert severity='success' sx={{ width: '100%' }}>Updated Successfuly</Alert>
         </Snackbar>
       );
-      set_step_content()
+      set_step_content(<UserReview handleRatingChange={onRatingChange} ratingValue={notes[bloc_name] ?? notes.init} />)
     }
   },[updateUserIsSuccess])
 
@@ -334,6 +342,7 @@ const EditUserInfos = ({ user }) => {
       id:user._id,
     }
     const updated_user = await updateUser(update_user_body_payload).unwrap()
+    set_user(updated_user)
     if(!updated_user) return console.log("error updating user")
 
   }
@@ -352,7 +361,8 @@ const EditUserInfos = ({ user }) => {
         }
         const updated_user_reviewed = await updateUser(update_user_body_reviewed_payload).unwrap()
         if(!updated_user_reviewed) return console.log("error updating user")
-          break
+        set_user(updated_user_reviewed)
+        break
 
       case "Not Reviewed":
         const update_user_body_not_reviewed_payload = {
@@ -364,7 +374,9 @@ const EditUserInfos = ({ user }) => {
           id:user._id,
         }
         const updated_user_not_reviewed = await updateUser(update_user_body_not_reviewed_payload).unwrap()
+        console.log("user updated:",updated_user_not_reviewed);
         if(!updated_user_not_reviewed) return console.log("error updating user")
+        set_user(updated_user_not_reviewed)
           break
       default:
         break

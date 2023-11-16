@@ -85,11 +85,8 @@ export default function TabPanel({
   handleChangeMenuItemClick,
 }) {
 
-  const [ addReview, { data:ReviewData, error:ReviewError, isLoading:ReviewIsLoading, isError:ReviewIsError,  isSuccess:ReviewIsSuccess }] = useAddNewReviewMutation();
 
-  const [ updateUser, { data:updatedUserData, error:updateUserError, isLoading:updateUserIsLoading, isError:updateUserIsError, isSuccess:updateUserIsSuccess }] = useUpdateUserMutation();
 
-  const [ addBot,{data:BotData, error:BotError, isLoading:BotIsLoading, isError:BotIsError, isSuccess:BotIsSuccess, status:BotStatus}] = useAddNewBotMutation()
 
   const {data: UserReviews, isLoading: UserReviewsAreLoading, isSuccess: UserReviewsAreSuccess, isFetching:UserReviewsAreFetching, isError: UserReviewsAreError, error: UserReviewsError} = useGetUserReviewsQuery(user._id)
 
@@ -162,42 +159,6 @@ export default function TabPanel({
     
 
   },[reviews])
-
-  useEffect(()=>{
-    let snackbar_content_init= null;
-
-    if (BotIsSuccess) {
-      console.log("Vocal send successfuly");
-      snackbar_content_init =  <CustomizedSnackbars message={"Vocal send successfuly"} severity={"success"} />
-    }
-    if (updateUserIsSuccess){
-      console.log("Review saved successfuly");
-      snackbar_content_init = <CustomizedSnackbars message={"User updated successfuly"} severity={"success"} />
-    }
-    if (ReviewIsSuccess){
-      console.log("Review saved successfuly");
-      snackbar_content_init = <CustomizedSnackbars message={"Review saved successfuly"} severity={"success"} />
-    } 
-  
-  
-    if (BotIsError) {
-      console.log("Error sending vocal");
-      snackbar_content_init = <CustomizedSnackbars message={"Error sending vocal"} severity={"error"}  />
-    }
-    if(ReviewIsError) {
-      console.log("Error saving review");
-      snackbar_content_init= <CustomizedSnackbars message={"Error saving review"} severity={"error"} />
-    }
-  
-    if(updateUserIsError){
-      console.log("Error updating User");
-      snackbar_content_init = <CustomizedSnackbars message={"Error updating User"} severity={"error"}  />
-    }
-    
-    set_snackBar_content(snackbar_content_init)
-  },[BotIsSuccess,updateUserIsSuccess,ReviewIsSuccess,BotIsError,ReviewIsError,updateUserIsError])
-
-
 
   const handleTabChange = (event, newValue) => {
     set_tab_Value(newValue);
@@ -285,7 +246,6 @@ export default function TabPanel({
 
   const reviewed_chip =   (chosen_block_reviewed && <Chip label={"Reviewed"} clickable={Boolean(url)} onClick={seeReview} sx={{width:100, marginLeft:5}}/>) || null 
 
-  const review_loading_chip = ((ReviewIsLoading || BotIsLoading) && <CircularProgress sx={{marginLeft:5}} color='primary'/>) || null
 
   const manager_change_status = 
     isManager && 
@@ -338,7 +298,6 @@ export default function TabPanel({
 
               {starting_chip}
               {reviewed_chip}
-              {review_loading_chip}
               {manager_change_status}    
           </Box>
 
