@@ -48,7 +48,9 @@ export default function UserList() {
       error,
   } = useGetUsersQuery('userList',{
     pollingInterval: 60000,
-
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+    
   })
   
   const navigate = useNavigate()
@@ -101,6 +103,7 @@ export default function UserList() {
       console.log("isSucces and data");
       const users = getUserlistdata.ids.map((id) => getUserlistdata.entities[id])
       //! Si isSucces et data alors on transforme la data normalisee et on set_users avec
+      console.log("USERLIST USERS:", users.length);
       set_users(users)
 
     }
@@ -210,7 +213,7 @@ export default function UserList() {
             </Paper>
           </div>)
       }
-      if(!rows.length && (!isFetching && !isLoading && !isSuccess)){
+      if(!rows.length && ( !isLoading)){
         set_page_content( 
           <div style={{width:'100%',height:'70%',display:'flex',alignItems:'center',justifyContent:'center'}}>
             <NoResultSvg handleClearFiltersClick={handleClearFiltersHere}/>

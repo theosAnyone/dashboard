@@ -16,8 +16,15 @@ const UserInfos = () => {
       pollingInterval:30000,
     })
 
+    useEffect(()=>{
 
-    const content = user ? <EditUserInfos user={user} /> : <p>Loading...</p>
+      console.log("USER_INFOS:",user);
+
+    },[user])
+
+
+
+    const content = user ? <EditUserInfos user_init={user} /> : <p>Loading...</p>
     
     useEffect(() => {
         const handleBeforeUnload = (event) => {
