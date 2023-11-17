@@ -237,7 +237,7 @@ export default function TabPanel({
 
       </MenuItem>
     )
-  }) : null
+  }) : []
 
   const starting_chip = (user_is_starting && <p>Starting...</p>) || null
 
