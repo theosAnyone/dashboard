@@ -82,6 +82,7 @@ const EditUserInfos = ({ user_init }) => {
   const [show_file, set_show_file] = React.useState(false)
   const [show_tags, set_show_tags] = React.useState(false)
   const [show_review_button, set_show_review_button] = React.useState(false)
+  const [change_status_fullfiled, set_change_status_fullfiled] = React.useState(true)
 
 
 
@@ -372,7 +373,7 @@ const EditUserInfos = ({ user_init }) => {
 
  const  handleChangeMenuItemClick = async (status) => {
 
-
+  set_change_status_fullfiled(false)
     switch(status){
       case "Reviewed":
         const update_user_body_reviewed_payload = {
@@ -384,6 +385,7 @@ const EditUserInfos = ({ user_init }) => {
         }
         const updated_user_reviewed = await updateUser(update_user_body_reviewed_payload).unwrap()
         if(!updated_user_reviewed) return console.log("error updating user")
+        set_change_status_fullfiled(true)
         set_user(updated_user_reviewed)
         break
 
@@ -400,6 +402,7 @@ const EditUserInfos = ({ user_init }) => {
         console.log("user updated:",updated_user_not_reviewed);
         if(!updated_user_not_reviewed) return console.log("error updating user")
         set_user(updated_user_not_reviewed)
+        set_change_status_fullfiled(true)
           break
       default:
         break
@@ -765,6 +768,7 @@ const EditUserInfos = ({ user_init }) => {
             pass_bloc_name_to_parent={blocNameFromTabPanel}
             pass_bloc_reviewed_to_parent={bloc_reviewed_passed}
             handleChangeMenuItemClick={handleChangeMenuItemClick}
+            change_status_fullfiled={change_status_fullfiled}
           />
         </Paper>
       </Paper>
