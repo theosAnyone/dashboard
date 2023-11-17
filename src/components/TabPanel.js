@@ -80,6 +80,7 @@ export default function TabPanel({
   pass_bloc_reviewed_to_parent,
   pass_bloc_name_to_parent,
   handleChangeMenuItemClick,
+  change_status_fullfiled,
 }) {
 
 
@@ -101,6 +102,7 @@ export default function TabPanel({
 
   const [change_menu_anchor,set_change_menu_anchor] = useState(null)
   const [change_menu_open,set_change_menu_open] = useState(false)
+
 
   const select_value_init = blocs?.length ? 
     setExChoose(0,"bases")
@@ -156,6 +158,7 @@ export default function TabPanel({
     
 
   },[reviews])
+
 
   const handleTabChange = (event, newValue) => {
     set_tab_Value(newValue);
@@ -245,7 +248,7 @@ export default function TabPanel({
 
 
   const manager_change_status = 
-    isManager && 
+     change_status_fullfiled ?
     <>
     <Button color='success' onClick={handleChangeClick}>Change</Button>
     <Menu open={change_menu_open} anchorEl={change_menu_anchor} onClose={handleChangeMenuClose}>
@@ -254,6 +257,8 @@ export default function TabPanel({
 
     </Menu>
     </>
+    :
+    <CircularProgress />
 
 
   return (
@@ -295,7 +300,7 @@ export default function TabPanel({
 
               {starting_chip}
               {reviewed_chip}
-              {manager_change_status}    
+              {isManager && manager_change_status}    
           </Box>
 
         <div style={{margin:20}}></div>
