@@ -15,7 +15,7 @@ const UserInfos = () => {
       refetchOnMountOrArgChange:true,
       pollingInterval:30000,
     })
-
+    console.log("user:",user);
     useEffect(()=>{
 
       console.log("USER_INFOS:",user);

@@ -39,7 +39,7 @@ import { useSelector } from 'react-redux';
 const EditUserInfos = ({ user_init }) => {
 
 
-  const {isLoading: userQueryIsLoading, isSuccess: userQueryIsSuccess} = useGetUsersQuery()
+
 
   const teacher_id = useSelector((state) => state.auth.teacher_id)
 
@@ -86,8 +86,8 @@ const EditUserInfos = ({ user_init }) => {
 
 
 
-  console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading, "\nuserQueryIsLoading:", userQueryIsLoading);
-  console.log("ReviewIsSucces:",ReviewIsSuccess, '\nupdateUserIsSuccess', updateUserIsSuccess, "\nBotIsSuccess",BotIsSuccess,"\nuserQueryIsSuccess",userQueryIsSuccess)
+  // console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading, "\nuserQueryIsLoading:", userQueryIsLoading);
+  // console.log("ReviewIsSucces:",ReviewIsSuccess, '\nupdateUserIsSuccess', updateUserIsSuccess, "\nBotIsSuccess",BotIsSuccess,"\nuserQueryIsSuccess",userQueryIsSuccess)
 
   const hide_all = (but_this_one) => {
     const setters = [
@@ -171,6 +171,21 @@ const EditUserInfos = ({ user_init }) => {
       return
     }
     if(tags.new?.length < 3){
+      let tags_total = 0;
+      for(const key in tags){
+        if(tags[key]?.length){
+          tags_total+=tags[key].length
+        }
+      }
+      const tags_total_needed = blocs_completed.length * 3
+      const tags_remaining = tags_total_needed - tags_total
+
+      if(tags_remaining <= 0 || blocs.length - blocs_reviewed.length > 1){
+        setActiveStep(4)
+        set_show_review_button(true)
+        return
+      }
+      set_remaining_tags(tags_remaining)
       setActiveStep(3)
       hide_all(3)
       set_remaining_tags(3 - tags.new?.length)
@@ -229,14 +244,12 @@ const EditUserInfos = ({ user_init }) => {
 
   React.useEffect( () => {
 
-    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading || userQueryIsLoading){
+    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading ){
       set_step_content(
         <CircularProgress color='success' />
       )
-    }else if(userQueryIsSuccess){
-      set_step_content(<UserReview handleRatingChange={onRatingChange} ratingValue={notes[bloc_name] ?? notes.init} />)
-    } return
-  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading, userQueryIsLoading, userQueryIsSuccess])
+    }
+  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading])
 
 
   React.useEffect( () => {
@@ -318,32 +331,42 @@ const EditUserInfos = ({ user_init }) => {
       teacher_last_name: last_name,
       teacher_anyone_profile: anyone_profile,
     };
-    const url = await postToBot(bot_body_payload).unwrap()
+    try {
+      const url = await postToBot(bot_body_payload).unwrap()
 
-    if(!url) return console.log("error posting review on discord")
-    
-    const review_body_payload = {
-      teacherId:teacher_id,
-      userId:user._id,
-      note:notes[bloc_name],
-      demos:demos_checked[bloc_name],
-      tags:tags.new,
-      url
+      if(!url) return console.log("error posting review on discord")
+      
+      const review_body_payload = {
+        teacherId:teacher_id,
+        userId:user._id,
+        note:notes[bloc_name],
+        demos:demos_checked[bloc_name],
+        tags:tags.new,
+        url
+      }
+
+      const saved_review = await addReview(review_body_payload).unwrap()
+      if(!saved_review) return console.log("error saving review")
+      set_tags({new:[],old:[...saved_review.tags, ...tags.old]})
+      const update_user_body_payload = {
+        userId:user._id,
+        blocName:bloc_name,
+        review_id:saved_review._id,
+        tags:[...tags.new,...tags.old],
+        id:user._id,
+      }
+      const updated_user = await updateUser(update_user_body_payload).unwrap()
+      set_user(updated_user)
+      if(!updated_user) return console.log("error updating user")
+    } catch (error) {
+        console.log(error);
+        set_snackbar(
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity='error' sx={{ width: '100%' }}>{`Error ${error?.data?.message ? error.data.message : error}` }</Alert>
+        </Snackbar>
+      )
     }
 
-    const saved_review = await addReview(review_body_payload).unwrap()
-    if(!saved_review) return console.log("error saving review")
-    set_tags({new:[],old:[...saved_review.tags, ...tags.old]})
-    const update_user_body_payload = {
-      userId:user._id,
-      blocName:bloc_name,
-      review_id:saved_review._id,
-      tags:[...tags.new,...tags.old],
-      id:user._id,
-    }
-    const updated_user = await updateUser(update_user_body_payload).unwrap()
-    set_user(updated_user)
-    if(!updated_user) return console.log("error updating user")
 
   }
 
