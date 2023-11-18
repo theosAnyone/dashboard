@@ -32,12 +32,7 @@ import CustomizedSnackbars from "../../components/CustomizedSnackbar";
 import NoResultSvg from "../../img/NoResultSvg";
 import { useDashboardContext } from "../../hooks/FiltersContext";
 
-
-
-
-
 export default function UserList() {
-
 
   const {
       data:getUserlistdata,
@@ -48,7 +43,6 @@ export default function UserList() {
       error,
   } = useGetUsersQuery('userList',{
     pollingInterval: 60000,
-    refetchOnFocus: true,
     refetchOnMountOrArgChange: true,
     
   })

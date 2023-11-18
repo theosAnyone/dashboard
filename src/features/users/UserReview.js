@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import  Rating  from '@mui/material/Rating'
 import { Lens, PanoramaFishEye } from '@mui/icons-material'
 import { useState } from 'react';
+import { Typography } from '@mui/material';
 
 
 const labels = {
@@ -35,7 +36,18 @@ const UserReview = ({handleRatingChange, ratingValue}) => {
   }
 
   return (
-          <>
+          <Box sx={{
+            display:"flex", flexDirection:"row", justifyContent:"center", alignItems:'center',
+            '@media (min-width:1200px)': {
+                flexDirection: 'row',
+            },
+            '@media (min-width:900px)': {
+                flexDirection: 'column',
+            },
+            '@media (min-width:0px)': {
+                flexDirection: 'column',
+            },
+          }}>
             <Rating
                 name="hover-feedback"
                 value={value || ratingValue}
@@ -49,12 +61,11 @@ const UserReview = ({handleRatingChange, ratingValue}) => {
                 }}
                 icon={<Lens color='success'/>}
                 emptyIcon={<PanoramaFishEye style={{ opacity: 0.55 }} fontSize="inherit" color='success'/>}
-                sx={{marginLeft:10}}
                 defaultValue={ratingValue ? ratingValue : null}
                 
             />
-            <Box sx={{ ml: 2,minWidth:160 }}>{labels[hover !== -1 ? hover : (value || ratingValue)]}</Box>
-            </>
+            <Box sx={{ ml: 3,minWidth:160 }}><Typography sx={{fontFamily:'FigTree'}}>{labels[hover !== -1 ? hover : (value || ratingValue)]}</Typography></Box>
+            </Box>
 
   )
   //note 
