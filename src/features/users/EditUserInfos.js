@@ -580,7 +580,7 @@ const EditUserInfos = ({ user_init }) => {
 
   return (
 
-      <Paper style={{ padding: 50, minHeight: "100vh" }} elevation={0}>
+      <Paper style={{ padding: 50, minHeight: "100vh",overflowY:'auto' }} elevation={0}>
         {snackbar}
         <Paper
           elevation={3}
@@ -593,53 +593,65 @@ const EditUserInfos = ({ user_init }) => {
             justifyContent: "space-between",
           }}
         >
-          <div className="user_infos_header">
-            <Paper elevation={3} sx={{
-                    borderRadius:'20px',
-                    height: {
-                      xs: '100px', // Taille sur les très petits écrans
-                      sm: '150px', // Taille sur les petits écrans
-                      md: '200px', // Taille sur les écrans moyens
-                      lg: '200px', // Taille sur les grands écrans
-                      xl: '250px'  // Taille sur les très grands écrans
+          <Box className="user_infos_header" sx={{
+            '@media (min-width:900px)': {
+                flexDirection: 'column',
+            },
+            '@media (min-width:1200px)': {
+                flexDirection: 'row',
+            },
+            '@media (min-width:0px)': {
+                      flexDirection: 'column',
                     },
-                    width: {
-                      xs: '100px', // Taille sur les très petits écrans
-                      sm: '150px', // Taille sur les petits écrans
-                      md: '200px', // Taille sur les écrans moyens
-                      lg: '200px', // Taille sur les grands écrans
-                      xl: '250px'  // Taille sur les très grands écrans
-                    }
-            }}>
-              <Avatar
-                src={user.Discord_Infos.avatar_url}
-                variant="square"
-                  sx={{  
-                    borderRadius:'20px',
-                    height: {
-                      xs: '100px', // Taille sur les très petits écrans
-                      sm: '150px', // Taille sur les petits écrans
-                      md: '200px', // Taille sur les écrans moyens
-                      lg: '200px', // Taille sur les grands écrans
-                      xl: '250px'  // Taille sur les très grands écrans
-                    },
-                    width: {
-                      xs: '100px', // Taille sur les très petits écrans
-                      sm: '150px', // Taille sur les petits écrans
-                      md: '200px', // Taille sur les écrans moyens
-                      lg: '200px', // Taille sur les grands écrans
-                      xl: '250px'  // Taille sur les très grands écrans
-                    }
-                  }}
-              />
-            </Paper>
-            <div className="user_infos">
-              {sub_chip}
-              <Typo
-              >
-                {user.Discord_Infos.displayName}
-              </Typo>
-              <em>{user.Discord_Infos.discordId}</em>
+          }}>
+            <div className="avatar_infos">
+              <Paper elevation={3} sx={{
+                      borderRadius:'20px',
+                      height: {
+                        xs: '100px', // Taille sur les très petits écrans
+                        sm: '150px', // Taille sur les petits écrans
+                        md: '200px', // Taille sur les écrans moyens
+                        lg: '200px', // Taille sur les grands écrans
+                        xl: '250px'  // Taille sur les très grands écrans
+                      },
+                      width: {
+                        xs: '100px', // Taille sur les très petits écrans
+                        sm: '150px', // Taille sur les petits écrans
+                        md: '200px', // Taille sur les écrans moyens
+                        lg: '200px', // Taille sur les grands écrans
+                        xl: '250px'  // Taille sur les très grands écrans
+                      }
+              }}>
+                <Avatar
+                  src={user.Discord_Infos.avatar_url}
+                  variant="square"
+                    sx={{  
+                      borderRadius:'20px',
+                      height: {
+                        xs: '100px', // Taille sur les très petits écrans
+                        sm: '150px', // Taille sur les petits écrans
+                        md: '200px', // Taille sur les écrans moyens
+                        lg: '200px', // Taille sur les grands écrans
+                        xl: '250px'  // Taille sur les très grands écrans
+                      },
+                      width: {
+                        xs: '100px', // Taille sur les très petits écrans
+                        sm: '150px', // Taille sur les petits écrans
+                        md: '200px', // Taille sur les écrans moyens
+                        lg: '200px', // Taille sur les grands écrans
+                        xl: '250px'  // Taille sur les très grands écrans
+                      }
+                    }}
+                />
+              </Paper>
+              <div className="user_infos">
+                {sub_chip}
+                <Typo
+                >
+                  {user.Discord_Infos.displayName}
+                </Typo>
+                <em>{user.Discord_Infos.discordId}</em>
+              </div>
             </div>
             {!bloc_reviewed && blocs_completed && (
               <Box
@@ -734,7 +746,7 @@ const EditUserInfos = ({ user_init }) => {
                 </Fade>
               </Box>
             )}
-          </div>
+          </Box>
           {!bloc_reviewed &&  blocs_completed && (
             <Box
               sx={{
@@ -745,17 +757,27 @@ const EditUserInfos = ({ user_init }) => {
                 justifyContent: "flex-start",
               }}
             >
-              <Box sx={{ minWidth: 400, height: "100%" }}></Box>
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {step_content}
+              <Box display={"flex"} width={"100%"} alignItems={"flex-end"} justifyContent={"flex-end"}>
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    '@media (min-width:1200px)': {
+                      width: '50%',
+                    },
+                    '@media (min-width:900px)': {
+                      width: '100%',
+                    },
+                    '@media (min-width:0px)': {
+                      width: '100%',
+                    },
+                  }}
+                >
+                  {step_content}
+                </Box>
               </Box>
             </Box>
           )}
