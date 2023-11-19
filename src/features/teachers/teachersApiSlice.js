@@ -12,6 +12,14 @@ export const teachersApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getTeachers: builder.query({
             query: () => '/teachers',
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError
             },
@@ -33,6 +41,14 @@ export const teachersApiSlice = apiSlice.injectEndpoints({
         }),
         getTeacherById: builder.query({
             query: (teacherId) => `/teachers/id/${teacherId}`,
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             providesTags: (result, error, teacherId) => [{ type: 'Teacher', id: teacherId }]
         }),
         addNewTeacher: builder.mutation({
@@ -55,6 +71,26 @@ export const teachersApiSlice = apiSlice.injectEndpoints({
                 }
             }
         }),
+        addTeacherReview: builder.mutation({
+            query: teacherAndReviewId => ({
+                url:'/teachers/addReview',
+                method:'PATCH',
+                body: {
+                    ...teacherAndReviewId
+                }
+            }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
+            invalidatesTags : (result, error, arg) => [
+                {type:'Teacher',id: arg.id}
+            ]
+        }),
         updateTeacher: builder.mutation({
             query: initialTeacherData => ({
                 url: '/teachers',
@@ -63,6 +99,14 @@ export const teachersApiSlice = apiSlice.injectEndpoints({
                     ...initialTeacherData,
                 }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: (result, error, arg) => [
                 { type: 'Teacher', id: arg.id }
             ]
@@ -73,6 +117,14 @@ export const teachersApiSlice = apiSlice.injectEndpoints({
                 method: 'DELETE',
                 body: { id }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: (result, error, arg) => [
                 { type: 'Teacher', id: arg.id }
             ]
@@ -86,6 +138,7 @@ export const {
     useAddNewTeacherMutation,
     useUpdateTeacherMutation,
     useDeleteTeacherMutation,
+    useAddTeacherReviewMutation,
 } = teachersApiSlice
 
 // returns the query result object

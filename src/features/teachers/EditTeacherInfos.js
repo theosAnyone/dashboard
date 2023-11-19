@@ -2,6 +2,8 @@ import Container  from '@mui/material/Container'
 import  Box  from '@mui/material/Box'
 import  Paper  from '@mui/material/Paper'
 import  Button  from '@mui/material/Button'
+import  Snackbar  from '@mui/material/Snackbar'
+import  Alert  from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import React, { useState } from 'react'
 import  TextField  from '@mui/material/TextField'
@@ -15,6 +17,7 @@ const EditTeacherInfos = ({teacher}) => {
   const [first_name, set_first_name] = useState(teacher.first_name);
   const [last_name, set_last_name] = useState(teacher.last_name)
   const [anyone_profile, set_anyone_profile] = useState(teacher.anyone_profile ?? "")
+  const [snack_success, set_snack_success] = useState(false)
   const [updateTeacher, {data, isLoading, isSuccess, isError, error}] = useUpdateTeacherMutation()
 
   const dispatch = useDispatch()
@@ -29,9 +32,17 @@ const EditTeacherInfos = ({teacher}) => {
       id: teacher._id,
     }
     const updatedTeacher = await updateTeacher(payload).unwrap()
-    if(!updatedTeacher) return console.log("error no updatedTeacher")
+    if(!updatedTeacher){
+
+      return console.log("error no updatedTeacher")
+    } 
     dispatch(setInfos({first_name, last_name, anyone_profile}))
-    
+    set_snack_success(true)
+  }
+
+  const handleSnackBarClose = (event, reason) => {
+    if(reason === 'clickaway') return;
+    set_snack_success(false)
   }
 
   return (
@@ -44,6 +55,13 @@ const EditTeacherInfos = ({teacher}) => {
         height: "100vh",
       }}
     >
+      <Snackbar 
+        open={snack_success} 
+        autoHideDuration={6000} 
+        onClose={handleSnackBarClose}
+      >
+          <Alert severity='success' onClose={handleSnackBarClose} sx={{ width: '100%' }}>Updated Successfuly</Alert>
+      </Snackbar>
       <Paper
         elevation={3}
         sx={{

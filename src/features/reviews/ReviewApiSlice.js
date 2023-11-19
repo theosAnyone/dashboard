@@ -12,6 +12,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getReviews: builder.query({
             query: () => '/reviews',
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError
             },
@@ -33,6 +41,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
         }),
         getUserReviews:builder.query({
             query: (user_id) => `/reviews/user/${user_id}`,
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError
             },
@@ -63,6 +79,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
         }),
         getReviewById: builder.query({
             query: (reviewId) => `/reviews/id/${reviewId}`,
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError
             },
@@ -92,6 +116,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
                     ...initialReviewData,
                 }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: [
                 { type: 'Review', id: "LIST" }
             ]
@@ -104,6 +136,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
                     ...initialReviewData,
                 }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: (result, error, arg) => [
                 { type: 'Review', id: arg.id }
             ]
@@ -114,6 +154,14 @@ export const reviewsApiSlice = apiSlice.injectEndpoints({
                 method: 'DELETE',
                 body: { id }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: (result, error, arg) => [
                 { type: 'Review', id: arg.id }
             ]

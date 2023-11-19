@@ -32,6 +32,7 @@ import { useAddNewBotMutation } from '../discordBot.js/DiscordBotApiSlice';
 import { useAddNewReviewMutation } from '../reviews/ReviewApiSlice';
 import {  useGetUsersQuery, useUpdateUserMutation } from './usersApiSlice';
 import { useSelector } from 'react-redux';
+import { useAddTeacherReviewMutation } from '../teachers/teachersApiSlice';
 
 
 
@@ -50,6 +51,8 @@ const EditUserInfos = ({ user_init }) => {
   const [ updateUser, { data:updatedUserData, error:updateUserError, isLoading:updateUserIsLoading, isError:updateUserIsError, isSuccess:updateUserIsSuccess }] = useUpdateUserMutation();
 
   const [ postToBot,{data:BotData, error:BotError, isLoading:BotIsLoading, isError:BotIsError, isSuccess:BotIsSuccess, status:BotStatus}] = useAddNewBotMutation()
+
+  const [addTeacherReview, {data: TeacherReviewData, error:TeacherReviewError, isLoading:TeacherReviewIsLoading, isError:TeacherReviewIsError, isSuccess:TeacherReviewIsSucces}] = useAddTeacherReviewMutation()
 
   
   const [user, set_user] = React.useState(user_init)
@@ -245,12 +248,12 @@ const EditUserInfos = ({ user_init }) => {
 
   React.useEffect( () => {
 
-    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading ){
+    if(ReviewIsLoading || updateUserIsLoading || BotIsLoading || TeacherReviewIsLoading){
       set_step_content(
         <CircularProgress color='success' />
       )
     }
-  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading])
+  }, [ReviewIsLoading, updateUserIsLoading, BotIsLoading, TeacherReviewIsLoading])
 
 
   React.useEffect( () => {
@@ -266,7 +269,7 @@ const EditUserInfos = ({ user_init }) => {
   },[updateUserIsSuccess])
 
   React.useEffect( () => {
-    if(!ReviewIsError && !BotIsError && !updateUserIsError) return
+    if(!ReviewIsError && !BotIsError && !updateUserIsError && !TeacherReviewIsError) return
     if(ReviewIsError){
       set_snackbar(
         <Snackbar open={true} autoHideDuration={6000}>
@@ -290,6 +293,14 @@ const EditUserInfos = ({ user_init }) => {
       )
       console.log("user error:", updateUserError);
     }
+    if(TeacherReviewIsError){
+        set_snackbar(
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity='error' sx={{ width: '100%' }}>Error adding Teacher Review</Alert>
+        </Snackbar>
+      )
+      console.log("user error:", TeacherReviewError);
+    }
     set_step_content(
       <Fade in={true} timeout={500}>
         <Fab
@@ -305,7 +316,7 @@ const EditUserInfos = ({ user_init }) => {
     );
     
     
-  },[ReviewIsError,BotIsError,updateUserIsError])
+  },[ReviewIsError,BotIsError,updateUserIsError, TeacherReviewIsError])
 
   const blocNameFromTabPanel = (bloc) => {
     set_bloc_name(bloc.blocName)
@@ -348,7 +359,18 @@ const EditUserInfos = ({ user_init }) => {
 
       const saved_review = await addReview(review_body_payload).unwrap()
       if(!saved_review) return console.log("error saving review")
+
       set_tags({new:[],old:[...saved_review.tags, ...tags.old]})
+
+      const teacher_review_body_payload = {
+        teacher_id,
+        review_id:saved_review._id,
+        id:teacher_id
+      }
+
+      const updated_teacher = await addTeacherReview(teacher_review_body_payload).unwrap()
+      if(!updated_teacher) return console.log('error updating teacher')
+      
       const update_user_body_payload = {
         userId:user._id,
         blocName:bloc_name,
@@ -356,9 +378,11 @@ const EditUserInfos = ({ user_init }) => {
         tags:[...tags.new,...tags.old],
         id:user._id,
       }
+
       const updated_user = await updateUser(update_user_body_payload).unwrap()
       set_user(updated_user)
       if(!updated_user) return console.log("error updating user")
+
     } catch (error) {
         console.log(error);
         set_snackbar(
