@@ -12,6 +12,14 @@
         endpoints: builder => ({
             getUsers: builder.query({
                 query: () => '/users',
+                async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+                },
                 validateStatus: (response, result) => {
                     return response.status === 200 && !result.isError
                 },
@@ -31,6 +39,21 @@
                     } else return [{ type: 'User', id: 'LIST' }]
                 }
             }),
+            getUserById: builder.query({
+                query: (userId) => `/users/id/${userId}`,
+                async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+                },
+                validateStatus: (response, result) => {
+                    return response.status === 200 && !result.isError
+                },
+                providesTags: (result, error, userId) => [{ type: 'User', id: userId }]
+            }), 
             addNewUser: builder.mutation({
                 query: initialUserData => ({
                     url: '/users',
@@ -39,6 +62,14 @@
                         ...initialUserData,
                     }
                 }),
+                async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+                },
                 invalidatesTags: [
                     { type: 'User', id: "LIST" }
                 ]
@@ -51,6 +82,14 @@
                         ...initialUserData,
                     }
                 }),
+                async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+                },
                 invalidatesTags: (result, error, arg) => [
                     { type: 'User', id: arg.id }
                 ]
@@ -61,6 +100,14 @@
                     method: 'DELETE',
                     body: { id }
                 }),
+                async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+                },
                 invalidatesTags: (result, error, arg) => [
                     { type: 'User', id: arg.id }
                 ]
@@ -73,6 +120,7 @@
         useAddNewUserMutation,
         useUpdateUserMutation,
         useDeleteUserMutation,
+        useGetUserByIdQuery,
     } = usersApiSlice
 
     // returns the query result object

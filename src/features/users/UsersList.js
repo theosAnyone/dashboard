@@ -44,7 +44,6 @@ export default function UserList() {
   } = useGetUsersQuery('userList',{
     pollingInterval: 60000,
     refetchOnMountOrArgChange: true,
-    
   })
   
   const navigate = useNavigate()

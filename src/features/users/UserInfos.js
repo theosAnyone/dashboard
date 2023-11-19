@@ -1,20 +1,28 @@
 
 import { useEffect } from 'react'
 import {  useParams } from 'react-router-dom'
-import { usersApiSlice } from './usersApiSlice'
+import { useGetUserByIdQuery, usersApiSlice } from './usersApiSlice'
 import EditUserInfos from './EditUserInfos'
 
 const UserInfos = () => {
 
     const { id } = useParams()
 
-    const { user } = usersApiSlice.useGetUsersQuery("userList", {
-      selectFromResult: ({ data }) => ({
-        user: data?.entities[id]
-      }),
+    // const { user } = usersApiSlice.useGetUsersQuery("userList", {
+    //   selectFromResult: ({ data }) => ({
+    //     user: data?.entities[id]
+    //   }),
+    //   refetchOnMountOrArgChange:true,
+    //   pollingInterval:30000,
+    // })
+    
+    const {data:user} = usersApiSlice.useGetUserByIdQuery(id,{
       refetchOnMountOrArgChange:true,
-      pollingInterval:30000,
+      pollingInterval:30000, 
     })
+    console.log("USER_BY_ID:",user);
+
+
     console.log("user:",user);
     useEffect(()=>{
 

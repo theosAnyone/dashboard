@@ -12,6 +12,14 @@ export const botsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getBots: builder.query({
             query: () => '/discordBot',
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError
             },
@@ -32,6 +40,14 @@ export const botsApiSlice = apiSlice.injectEndpoints({
                     ...initialBotData,
                 }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: [
                 { type: 'Bot', id: "LIST" }
             ]
@@ -54,6 +70,14 @@ export const botsApiSlice = apiSlice.injectEndpoints({
                 method: 'DELETE',
                 body: { id }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                    try {
+                        const { data } = await queryFulfilled
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+            },
             invalidatesTags: (result, error, arg) => [
                 { type: 'Bot', id: arg.id }
             ]
