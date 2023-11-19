@@ -20,7 +20,7 @@ const UserInfos = () => {
       refetchOnMountOrArgChange:true,
       pollingInterval:30000, 
     })
-    console.log("USER_BY_ID:",user);
+
 
 
     console.log("user:",user);
