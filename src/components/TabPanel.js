@@ -59,10 +59,11 @@ function a11yProps(index) {
   };
 }
 
-function setExChoose(number,name){
+function setExChoose(number,name, blocIsReviewed, blocIsCompleted){
+  const color = !blocIsCompleted ? '🟠' :  blocIsReviewed ? '🟢' : '🔴'
   return (
     <div key={name} style={{cursor:'pointer'}} >
-    <span style={{color:'#6F6D76',fontWeight:500,cursor:'pointer'}}>Bloc {number}</span>
+    <span style={{color:'#6F6D76',fontWeight:500,cursor:'pointer'}}>{color} Bloc {number}</span>
     <span style={{fontWeight:500,fontSize:18,marginLeft:4,cursor:'pointer'}}> {name}</span>
     </div>
 
@@ -225,8 +226,10 @@ export default function TabPanel({
 
 
   const blocs_menu_items = blocs?.length ? blocs.map((bloc,index) => {
+    const bloc_is_reviewed = Boolean(bloc.reviews?.length)
+    const bloc_is_completed = bloc.completed
 
-    const ex_value = setExChoose(index,bloc.blocName)
+    const ex_value = setExChoose(index,bloc.blocName,bloc_is_reviewed, bloc_is_completed)
 
     if(chosen_block?.blocName === bloc.blocName) return
     return (
