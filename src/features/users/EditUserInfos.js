@@ -87,8 +87,9 @@ const EditUserInfos = ({ user_init }) => {
   const [show_review_button, set_show_review_button] = React.useState(false)
   const [change_status_fullfiled, set_change_status_fullfiled] = React.useState(true)
 
-
-
+  const containerRef = React.useRef(null);
+  console.log("note:",notes[bloc_name]);
+  console.log("chosen_bloc_comleted:", chosen_block.completed);
 
   // console.log("ReviewIsLoading:",ReviewIsLoading,'\nupdateUserIsLoading:', updateUserIsLoading, "\nBotIsLoading:" ,BotIsLoading, "\nuserQueryIsLoading:", userQueryIsLoading);
   // console.log("ReviewIsSucces:",ReviewIsSuccess, '\nupdateUserIsSuccess', updateUserIsSuccess, "\nBotIsSuccess",BotIsSuccess,"\nuserQueryIsSuccess",userQueryIsSuccess)
@@ -117,11 +118,6 @@ const EditUserInfos = ({ user_init }) => {
     {label:'Add some tags',description:remaining_tags} 
   ];
 
-  const containerRef = React.useRef(null);
-    console.log("note:",notes[bloc_name]);
-
-
-  
 
   React.useEffect(()=>{
     if(!notes[bloc_name]){
@@ -156,8 +152,9 @@ const EditUserInfos = ({ user_init }) => {
       set_show_file(false)
       
     }
-    if(tags.new?.length >= 3){
+    if(activeStep === 3){
       let tags_total = 0;
+
       for(const key in tags){
         if(tags[key]?.length){
           tags_total+=tags[key].length
@@ -170,31 +167,11 @@ const EditUserInfos = ({ user_init }) => {
         setActiveStep(4)
         set_show_review_button(true)
       }
-      set_remaining_tags(tags_remaining)
-
-      return
-    }
-    if(tags.new?.length < 3){
-      let tags_total = 0;
-      for(const key in tags){
-        if(tags[key]?.length){
-          tags_total+=tags[key].length
-        }
-      }
-      const tags_total_needed = blocs_completed.length * 3
-      const tags_remaining = tags_total_needed - tags_total
-
-      if(tags_remaining <= 0 || blocs.length - blocs_reviewed.length > 1){
-        setActiveStep(4)
-        set_show_review_button(true)
-        return
-      }
-      set_remaining_tags(tags_remaining)
       setActiveStep(3)
-      hide_all(3)
-      set_remaining_tags(3 - tags.new?.length)
-    }
+      set_show_review_button(false)
+      set_remaining_tags(tags_remaining)
 
+    }
   },[notes, demos_checked, files, tags, bloc_name, blocs])
 
 
@@ -317,6 +294,7 @@ const EditUserInfos = ({ user_init }) => {
     
     
   },[ReviewIsError,BotIsError,updateUserIsError, TeacherReviewIsError])
+
 
   const blocNameFromTabPanel = (bloc) => {
     set_bloc_name(bloc.blocName)
@@ -677,7 +655,7 @@ const EditUserInfos = ({ user_init }) => {
                 <em>{user.Discord_Infos.discordId}</em>
               </div>
             </div>
-            {!bloc_reviewed && blocs_completed && (
+            {!bloc_reviewed && chosen_block.completed && (
               <Box
                 sx={{
                   width: "100%",
@@ -771,7 +749,7 @@ const EditUserInfos = ({ user_init }) => {
               </Box>
             )}
           </Box>
-          {!bloc_reviewed &&  blocs_completed && (
+          {!bloc_reviewed &&  chosen_block.completed && (
             <Box
               sx={{
                 width: "100%",
