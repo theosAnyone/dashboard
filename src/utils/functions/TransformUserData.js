@@ -28,7 +28,8 @@ export default function transform_users_data(users){
       }
     }
 
-    const status = !user_blocs_length ? 'Just started' :  (user.Journey_Infos.blocs.some(bloc=> !bloc_is_reviewed(bloc) && bloc.completed) || (user.Journey_Infos.progress === JOURNEY_PROGRESS_CAP && bloc_is_reviewed(user.Journey_Infos.blocs[user_blocs_length - 1]) ))  ? "Not reviewed" : user.Journey_Infos.blocs.some(bloc=>!bloc.reviewed) ? 'In progress' : (user.Journey_Infos.progress === JOURNEY_PROGRESS_CAP && !user.Journey_Infos.blocs.some(bloc => !bloc_is_reviewed(bloc)))  ? 'Finished' : 'Reviewed' ;
+    const status = !user_blocs_length ? 'Just started' :  (user.Journey_Infos.blocs.some(bloc=> !bloc_is_reviewed(bloc) && bloc.completed) || (user.Journey_Infos.progress === JOURNEY_PROGRESS_CAP && !bloc_is_reviewed(user.Journey_Infos.blocs[user_blocs_length - 1]) ))  ? "Not reviewed" : user.Journey_Infos.blocs.some(bloc=>!bloc.reviewed) ? 'In progress' : (user.Journey_Infos.progress === JOURNEY_PROGRESS_CAP && !user.Journey_Infos.blocs.some(bloc => !bloc_is_reviewed(bloc)))  ? 'Finished' : 'Reviewed' ;
+    console.log("STATUS:",status);
     const fiche_state_color = (one_good && one_wrong) ? '🟠' : !one_wrong ? '🟢' : '🔴' ;
     const progress = user.Journey_Infos.progress
     const subscription = user.Discord_Infos.grade

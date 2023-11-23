@@ -35,12 +35,7 @@ import { useSelector } from 'react-redux';
 import { useAddTeacherReviewMutation } from '../teachers/teachersApiSlice';
 
 
-
-
 const EditUserInfos = ({ user_init }) => {
-
-
-
 
   const teacher_id = useSelector((state) => state.auth.teacher_id)
 
@@ -153,6 +148,7 @@ const EditUserInfos = ({ user_init }) => {
       
     }
     if(activeStep === 3){
+
       let tags_total = 0;
 
       for(const key in tags){
@@ -166,6 +162,7 @@ const EditUserInfos = ({ user_init }) => {
       if(tags_remaining <= 0 || blocs.length - blocs_reviewed.length > 1){
         setActiveStep(4)
         set_show_review_button(true)
+        return
       }
       setActiveStep(3)
       set_show_review_button(false)
