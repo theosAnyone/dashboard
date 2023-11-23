@@ -1,22 +1,15 @@
 
 import { useEffect } from 'react'
 import {  useParams } from 'react-router-dom'
-import { useGetUserByIdQuery, usersApiSlice } from './usersApiSlice'
+import {  usersApiSlice } from './usersApiSlice'
 import EditUserInfos from './EditUserInfos'
 
 const UserInfos = () => {
 
     const { id } = useParams()
 
-    // const { user } = usersApiSlice.useGetUsersQuery("userList", {
-    //   selectFromResult: ({ data }) => ({
-    //     user: data?.entities[id]
-    //   }),
-    //   refetchOnMountOrArgChange:true,
-    //   pollingInterval:30000,
-    // })
     
-    const {data:user} = usersApiSlice.useGetUserByIdQuery(id,{
+    const {data:user, isError, isLoading, error} = usersApiSlice.useGetUserByIdQuery(id,{
       refetchOnMountOrArgChange:true,
       pollingInterval:30000, 
     })
@@ -31,8 +24,12 @@ const UserInfos = () => {
     },[user])
 
 
+    let content = <p>Loading...</p>
+    if(isError) content = <p>ERROR {error.data.message}</p>
+    if(user) content = <EditUserInfos user_init={user} />
+    if(isLoading) content = <p>Loading...</p>
+    
 
-    const content = user ? <EditUserInfos user_init={user} /> : <p>Loading...</p>
     
     useEffect(() => {
         const handleBeforeUnload = (event) => {

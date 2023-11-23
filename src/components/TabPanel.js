@@ -231,7 +231,7 @@ export default function TabPanel({
 
     const ex_value = setExChoose(index,bloc.blocName,bloc_is_reviewed, bloc_is_completed)
 
-    if(chosen_block?.blocName === bloc.blocName) return
+    if(chosen_block?.blocName === bloc.blocName) return;
     return (
 
       <MenuItem
