@@ -25,7 +25,7 @@ const UserInfos = () => {
 
 
     let content = <p>Loading...</p>
-    if(isError) content = <p>ERROR {error.data.message}</p>
+    if(isError) content = <p>ERROR {error?.data?.message}</p>
     if(user) content = <EditUserInfos user_init={user} />
     if(isLoading) content = <p>Loading...</p>
     
