@@ -113,8 +113,10 @@ const EditUserInfos = ({ user_init }) => {
     {label:'Add some tags',description:remaining_tags} 
   ];
 
+  console.log("activeStep:",activeStep);
 
   React.useEffect(()=>{
+
     if(!notes[bloc_name]){
       setActiveStep(0)
       set_show_rating(true)
@@ -147,7 +149,7 @@ const EditUserInfos = ({ user_init }) => {
       set_show_file(false)
       
     }
-    if(activeStep === 3){
+    if(tags){
 
       let tags_total = 0;
 
@@ -160,6 +162,7 @@ const EditUserInfos = ({ user_init }) => {
       const tags_remaining = tags_total_needed - tags_total
 
       if(tags_remaining <= 0 || blocs.length - blocs_reviewed.length > 1){
+        console.log("tags remaining <= 0 || not the only block to be review");
         setActiveStep(4)
         set_show_review_button(true)
         return
@@ -217,7 +220,7 @@ const EditUserInfos = ({ user_init }) => {
     else {
       set_step_content(null)
     }
-  },[show_rating, show_file, show_review_button, bloc_name])
+  },[show_rating, show_file, show_review_button, bloc_name, activeStep])
 
 
   React.useEffect( () => {
